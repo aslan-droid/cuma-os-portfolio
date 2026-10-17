@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuma ASLAN | Portfolyo</title>
+  <meta name="description" content="İskenderun Teknik Üniversitesi YBS öğrencisi Cuma ASLAN'ın kişisel portfolyo sitesi. WebXR, Yapay Zeka ve M-Sport Telemetri projeleri." />
+
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===== CSS RESET & ROOT ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8fafc;
+      --bg2: #ffffff;
+      --bg3: #f1f5f9;
+      --accent: #3b82f6;
+      --accent2: #6366f1;
+      --accent3: #8b5cf6;
+      --text: #0f172a;
+      --text2: #475569;
+      --text3: #94a3b8;
+      --border: #e2e8f0;
+      --card: #ffffff;
+      --shadow: 0 4px 24px rgba(59,130,246,0.08);
+      --shadow2: 0 8px 40px rgba(59,130,246,0.14);
+      --radius: 16px;
+      --radius2: 24px;
+      --nav-h: 64px;
+
+      /* M-Sport Colors */
+      --ms-red: #e30613;
+      --ms-blue: #003f8a;
+      --ms-bg: #0a0e1a;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ===== THREE.JS CANVAS ===== */
+    #three-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(248,250,252,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1rem, 5vw, 3rem);
+    }
+
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text2);
+      text-decoration: none;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { background: var(--bg3); color: var(--accent); }
+
+    .nav-telemetry-btn {
+      background: linear-gradient(135deg, var(--ms-red), #b00010);
+      color: white !important;
+      border-radius: 8px;
+      font-weight: 600 !important;
+      font-size: 0.8rem !important;
+      letter-spacing: 0.05em;
+    }
+    .nav-telemetry-btn:hover { background: linear-gradient(135deg, #ff1a2a, #e30613) !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(227,6,19,0.3); }
+
+    .nav-hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+
+    /* ===== SECTIONS ===== */
+    section {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--nav-h) + 2rem) clamp(1rem, 5vw, 3rem) 4rem;
+    }
+
+    .container { max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh;
+      padding-top: var(--nav-h);
+    }
+
+    .hero-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.1));
+      border: 1px solid rgba(59,130,246,0.2);
+      color: var(--accent);
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+    }
+
+    .hero-badge .dot {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      color: var(--text2);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-desc {
+      font-size: 0.95rem;
+      color: var(--text2);
+      line-height: 1.75;
+      margin-bottom: 2rem;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      padding: 0.75rem 1.75rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59,130,246,0.4); }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--text);
+      padding: 0.75rem 1.75rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,0.04); transform: translateY(-2px); }
+
+    /* Hero Visual */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 2rem;
+      box-shadow: var(--shadow2);
+      width: 100%;
+      max-width: 360px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent 0deg, rgba(59,130,246,0.05) 60deg, transparent 120deg);
+      animation: card-spin 8s linear infinite;
+    }
+
+    @keyframes card-spin { to { transform: rotate(360deg); } }
+
+    .avatar-ring {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 2.2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+      position: relative; z-index: 1;
+    }
+
+    .card-role {
+      font-size: 0.85rem;
+      color: var(--text2);
+      margin-top: 0.25rem;
+      margin-bottom: 1.25rem;
+      position: relative; z-index: 1;
+    }
+
+    .card-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      position: relative; z-index: 1;
+    }
+
+    .stat {
+      background: var(--bg3);
+      border-radius: 12px;
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+      position: relative; z-index: 1;
+    }
+
+    .tag {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      padding: 0.3rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ===== SECTION HEADERS ===== */
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .section-desc {
+      font-size: 1rem;
+      color: var(--text2);
+      margin-top: 0.75rem;
+      line-height: 1.7;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ===== ABOUT ===== */
+    #about { background: var(--bg); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      font-size: 0.95rem;
+      color: var(--text2);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .about-skills {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .skill-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text2);
+    }
+
+    .skill-item i { color: var(--accent); width: 16px; }
+
+    .about-info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-row:last-child { border-bottom: none; }
+
+    .info-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.1));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .info-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ===== PROJECTS ===== */
+    #projects { background: var(--bg3); }
+
+    .projects-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 50px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--text2);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      border-color: transparent;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 1.75rem;
+      transition: all 0.3s;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent3));
+      transform: scaleX(0);
+      transition: transform 0.3s;
+      transform-origin: left;
+    }
+
+    .project-card:hover { transform: translateY(-6px); box-shadow: var(--shadow2); }
+    .project-card:hover::before { transform: scaleX(1); }
+
+    .project-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-card.webxr .project-icon { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+    .project-card.ai .project-icon { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+    .project-card.web .project-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    .project-card.msport .project-icon { background: linear-gradient(135deg, var(--ms-red), #b00010); }
+
+    .project-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .project-desc {
+      font-size: 0.85rem;
+      color: var(--text2);
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .project-tag.blue { background: rgba(59,130,246,0.1); color: #2563eb; }
+    .project-tag.purple { background: rgba(139,92,246,0.1); color: #7c3aed; }
+    .project-tag.green { background: rgba(16,185,129,0.1); color: #059669; }
+    .project-tag.red { background: rgba(227,6,19,0.1); color: #e30613; }
+    .project-tag.orange { background: rgba(245,158,11,0.1); color: #d97706; }
+
+    .project-links {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .proj-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+    .proj-link:hover { gap: 0.6rem; }
+    .proj-link.secondary { color: var(--text3); }
+    .proj-link.secondary:hover { color: var(--text2); }
+
+    .hidden-card { display: none; }
+
+    /* ===== M-SPORT TELEMETRY MODE ===== */
+    #telemetry-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--ms-bg);
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    #telemetry-overlay.active { display: flex; flex-direction: column; }
+
+    .tele-header {
+      background: linear-gradient(135deg, #0d1229, #0a0e1a);
+      border-bottom: 2px solid var(--ms-red);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tele-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .tele-logo-badge {
+      background: var(--ms-red);
+      color: white;
+      font-weight: 900;
+      font-size: 0.9rem;
+      padding: 0.3rem 0.8rem;
+      letter-spacing: 0.08em;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+
+    .tele-logo-text {
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    .tele-logo-sub {
+      color: #4a6fa5;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .tele-close {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #8899aa;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .tele-close:hover { background: rgba(227,6,19,0.2); color: var(--ms-red); border-color: var(--ms-red); }
+
+    .tele-body {
+      padding: 2rem;
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 1.25rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .tele-panel {
+      background: #0d1229;
+      border: 1px solid #1a2640;
+      border-radius: 8px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tele-panel::before {
+      content: attr(data-label);
+      position: absolute;
+      top: 0; left: 0;
+      background: var(--ms-red);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 0.2rem 0.7rem;
+      letter-spacing: 0.12em;
+      clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    }
+
+    .tele-panel-content { margin-top: 1.5rem; }
+
+    .tele-big-num {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .tele-unit {
+      font-size: 0.8rem;
+      color: #4a6fa5;
+      letter-spacing: 0.1em;
+      margin-top: 0.25rem;
+    }
+
+    .tele-bar-wrap {
+      margin-top: 0.75rem;
+      background: #060a12;
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .tele-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .tele-bar.red { background: linear-gradient(90deg, var(--ms-red), #ff4444); }
+    .tele-bar.blue { background: linear-gradient(90deg, var(--ms-blue), #4a90e2); }
+    .tele-bar.green { background: linear-gradient(90deg, #00c851, #00e676); }
+    .tele-bar.yellow { background: linear-gradient(90deg, #f5a623, #ffd600); }
+
+    .tele-label {
+      font-size: 0.65rem;
+      color: #4a6fa5;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 0.4rem;
+    }
+
+    .tele-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .tele-metric {
+      background: #060a12;
+      border-radius: 6px;
+      padding: 0.8rem;
+      text-align: center;
+    }
+
+    .tele-metric-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .tele-metric-label {
+      font-size: 0.6rem;
+      color: #4a6fa5;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    /* Gear indicator */
+    .gear-display {
+      font-size: clamp(4rem, 10vw, 7rem);
+      font-weight: 900;
+      color: var(--ms-red);
+      line-height: 1;
+      text-align: center;
+      text-shadow: 0 0 40px rgba(227,6,19,0.4);
+    }
+
+    /* RPM gauge */
+    .rpm-gauge {
+      position: relative;
+      width: 100%;
+      padding-top: 50%;
+      overflow: hidden;
+    }
+
+    .rpm-gauge canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 200%;
+    }
+
+    /* Tire temps */
+    .tire-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .tire-box {
+      border-radius: 8px;
+      padding: 0.8rem;
+      text-align: center;
+      border: 1px solid;
+      position: relative;
+    }
+
+    .tire-box.hot { background: rgba(227,6,19,0.15); border-color: rgba(227,6,19,0.4); }
+    .tire-box.warm { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); }
+    .tire-box.cool { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.25); }
+
+    .tire-temp { font-size: 1.3rem; font-weight: 700; color: white; }
+    .tire-label { font-size: 0.6rem; color: #4a6fa5; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* DRS / Buttons row */
+    .tele-btn-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tele-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 0.6rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-align: center;
+      border: 1px solid;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tele-btn.active-drs { background: rgba(0,200,81,0.15); border-color: #00c851; color: #00e676; }
+    .tele-btn.off { background: rgba(255,255,255,0.03); border-color: #1a2640; color: #2a3a50; }
+    .tele-btn.warning { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #f5a623; }
+
+    /* Status bar */
+    .tele-status {
+      background: #060a12;
+      border-top: 1px solid #1a2640;
+      padding: 0.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      font-size: 0.7rem;
+      color: #4a6fa5;
+      letter-spacing: 0.1em;
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #00c851;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .tele-span-3 { grid-column: span 3; }
+    .tele-span-2 { grid-column: span 2; }
+
+    /* ===== CONTACT ===== */
+    #contact { background: var(--bg); }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .contact-info h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .contact-info p {
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s;
+      box-shadow: var(--shadow);
+    }
+
+    .social-link:hover { transform: translateX(6px); border-color: var(--accent); box-shadow: var(--shadow2); }
+
+    .social-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .social-icon.github { background: #24292f; color: white; }
+    .social-icon.mail { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
+
+    .social-name { font-weight: 600; font-size: 0.9rem; }
+    .social-handle { font-size: 0.8rem; color: var(--text3); }
+
+    .contact-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .contact-card h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--text);
+    }
+
+    .form-group { margin-bottom: 1rem; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg3);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+    }
+
+    .form-group textarea { resize: vertical; min-height: 100px; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      position: relative; z-index: 10;
+      background: var(--text);
+      color: var(--text3);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+    }
+
+    footer span { color: var(--accent); }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 768px) {
+      .hero-content, .about-grid, .contact-grid { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .tele-body { grid-template-columns: 1fr 1fr; }
+      .tele-span-3 { grid-column: span 2; }
+      .nav-links { display: none; flex-direction: column; position: absolute; top: var(--nav-h); left: 0; right: 0; background: var(--bg2); padding: 1rem; border-bottom: 1px solid var(--border); }
+      .nav-links.open { display: flex; }
+      .nav-hamburger { display: flex; }
+    }
+
+    @media (max-width: 480px) {
+      .tele-body { grid-template-columns: 1fr; }
+      .tele-span-3, .tele-span-2 { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Three.js Canvas -->
+<canvas id="three-canvas"></canvas>
+
+<!-- ===== NAVIGATION ===== -->
+<nav>
+  <a href="#hero" class="nav-logo">CA.dev</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">Hakkımda</a></li>
+    <li><a href="#projects">Projeler</a></li>
+    <li><a href="#contact">İletişim</a></li>
+    <li><a href="#" class="nav-telemetry-btn" onclick="openTelemetry(event)">🏎 M-SPORT</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          İSKENDERUN TEKNİK ÜNİVERSİTESİ · YBS
+        </div>
+        <h1 class="hero-title">
+          Merhaba, ben<br>
+          <span class="gradient-text">Cuma ASLAN</span>
+        </h1>
+        <p class="hero-subtitle">Yönetim Bilişim Sistemleri Öğrencisi & Full-Stack Developer</p>
+        <p class="hero-desc">
+          WebXR / AR deneyimleri, Yapay Zeka uygulamaları ve interaktif 3D web projeleri geliştiriyorum.
+          İskenderun Teknik Üniversitesi'nde YBS eğitimim boyunca gerçek dünya problemlerine teknoloji odaklı
+          çözümler üretmeye devam ediyorum.
+        </p>
+        <div class="hero-btns">
+          <a href="#projects" class="btn-primary">
+            <i class="fas fa-rocket"></i> Projeleri Gör
+          </a>
+          <a href="https://github.com/aslan-droid" target="_blank" class="btn-outline">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="avatar-ring">🚀</div>
+          <div class="card-name">Cuma ASLAN</div>
+          <div class="card-role">YBS Öğrencisi @ İSTEÜ • Full-Stack Dev</div>
+          <div class="card-stats">
+            <div class="stat">
+              <div class="stat-num">14+</div>
+              <div class="stat-label">Repo</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">3+</div>
+              <div class="stat-label">WebXR</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">5+</div>
+              <div class="stat-label">AI Proj</div>
+            </div>
+          </div>
+          <div class="tech-tags">
+            <span class="tag">Three.js</span>
+            <span class="tag">WebXR</span>
+            <span class="tag">MindAR</span>
+            <span class="tag">Python</span>
+            <span class="tag">C#</span>
+            <span class="tag">Unity</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">// about.me</span>
+      <h2 class="section-title">Kim Bu Cuma?</h2>
+      <p class="section-desc">İskenderun Teknik Üniversitesi'nde Yönetim Bilişim Sistemleri okurken teknolojinin sınırlarını zorlamayı seviyorum.</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>
+          İskenderun Teknik Üniversitesi Yönetim Bilişim Sistemleri bölümünde öğrenciyim.
+          Web teknolojileri, Artırılmış Gerçeklik (AR/WebXR) ve yapay zeka uygulamaları üzerinde
+          aktif olarak projeler geliştiriyorum.
+        </p>
+        <p>
+          Three.js ile interaktif 3D deneyimler, MindAR ile marker tabanlı AR uygulamaları ve
+          Unity ile WebGL oyunları yapıyorum. Bunların yanı sıra iş süreçlerine yönelik ERP,
+          tedarik zinciri ve otel rezervasyon sistemleri geliştirdim.
+        </p>
+        <p>
+          M-Sport ve Formula 1 telemetri sistemlerine özel ilgim var — bu tutkuyu
+          interaktif bir Telemetri Modu projesiyle hayata geçirdim.
+        </p>
+        <div class="about-skills">
+          <div class="skill-item"><i class="fas fa-check-circle"></i> Three.js / WebGL</div>
+          <div class="skill-item"><i class="fas fa-check-circle"></i> WebXR / MindAR</div>
+          <div class="skill-item"><i class="fas fa-check-circle"></i> React / JavaScript</div>
+          <div class="skill-item"><i class="fas fa-check-circle"></i> Python / AI/ML</div>
+          <div class="skill-item"><i class="fas fa-check-circle"></i> Unity / C#</div>
+          <div class="skill-item"><i class="fas fa-check-circle"></i> Node.js / Backend</div>
+          <div class="skill-item"><i class="fas fa-check-circle"></i> PlayCanvas</div>
+          <div class="skill-item"><i class="fas fa-check-circle"></i> SQL / Veritabanı</div>
+        </div>
+      </div>
+
+      <div class="about-info-card reveal">
+        <div class="info-row">
+          <div class="info-icon"><i class="fas fa-university"></i></div>
+          <div>
+            <div class="info-label">Üniversite</div>
+            <div class="info-value">İskenderun Teknik Üniversitesi</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon"><i class="fas fa-graduation-cap"></i></div>
+          <div>
+            <div class="info-label">Bölüm</div>
+            <div class="info-value">Yönetim Bilişim Sistemleri (YBS)</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div>
+            <div class="info-label">Konum</div>
+            <div class="info-value">İskenderun, Hatay, Türkiye</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon"><i class="fas fa-code"></i></div>
+          <div>
+            <div class="info-label">Odak</div>
+            <div class="info-value">WebXR · AI · 3D Web · Game Dev</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon"><i class="fas fa-globe"></i></div>
+          <div>
+            <div class="info-label">Web Sitesi</div>
+            <div class="info-value">cumaaslan.com.tr</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROJECTS ===== -->
+<section id="projects">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">// my_projects[]</span>
+      <h2 class="section-title">Projelerim</h2>
+      <p class="section-desc">WebXR'dan yapay zekaya, 3D oyunlardan kurumsal sistemlere kadar geniş bir yelpazede projeler.</p>
+    </div>
+
+    <div class="projects-tabs reveal">
+      <button class="tab-btn active" onclick="filterProjects('all', this)">Tümü</button>
+      <button class="tab-btn" onclick="filterProjects('webxr', this)">WebXR / AR</button>
+      <button class="tab-btn" onclick="filterProjects('ai', this)">Yapay Zeka</button>
+      <button class="tab-btn" onclick="filterProjects('web', this)">Web / Sistem</button>
+    </div>
+
+    <div class="projects-grid" id="projectsGrid">
+
+      <!-- WebXR: Siber Dedektif -->
+      <div class="project-card webxr" data-cat="webxr">
+        <div class="project-icon"><i class="fas fa-vr-cardboard"></i></div>
+        <div class="project-title">Siber Dedektif</div>
+        <div class="project-desc">
+          WebXR tabanlı siber güvenlik temalı dedektiflik oyunu. PlayCanvas motoru ile geliştirilmiş,
+          tarayıcı üzerinde immersive VR deneyimi sunan interaktif bir macera.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag blue">WebXR</span>
+          <span class="project-tag blue">PlayCanvas</span>
+          <span class="project-tag purple">JavaScript</span>
+          <span class="project-tag green">VR</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/playcanvas-server" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- WebXR: MindAR Menü -->
+      <div class="project-card webxr" data-cat="webxr">
+        <div class="project-icon"><i class="fas fa-qrcode"></i></div>
+        <div class="project-title">MindAR — AR Restoran Menüsü</div>
+        <div class="project-desc">
+          MindAR.js kullanılarak geliştirilmiş marker tabanlı WebAR sipariş sistemi.
+          Kullanıcılar menü kartını kameraya tutarak 3D ürün görsellerini görüp sipariş verebiliyor.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag blue">MindAR.js</span>
+          <span class="project-tag blue">WebAR</span>
+          <span class="project-tag green">A-Frame</span>
+          <span class="project-tag orange">AR Marker</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/ar-menu" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+          <a href="https://aslan-droid.github.io/ar-menu/" target="_blank" class="proj-link secondary">
+            <i class="fas fa-external-link-alt"></i> Canlı Demo
+          </a>
+        </div>
+      </div>
+
+      <!-- AI: İK Mülakat Simülatörü -->
+      <div class="project-card ai" data-cat="ai">
+        <div class="project-icon"><i class="fas fa-brain"></i></div>
+        <div class="project-title">İK Mülakat Simülatörü</div>
+        <div class="project-desc">
+          Yapay zeka destekli insan kaynakları mülakat simülatörü. Adayların mülakat sorularını
+          pratik yapmasına olanak tanıyan, gerçek zamanlı geri bildirim veren web uygulaması.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag purple">AI</span>
+          <span class="project-tag purple">JavaScript</span>
+          <span class="project-tag blue">NLP</span>
+          <span class="project-tag green">HR Tech</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/IK-Mulakat-Simulatoru" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+          <a href="https://aslan-droid.github.io/IK-Mulakat-Simulatoru/" target="_blank" class="proj-link secondary">
+            <i class="fas fa-external-link-alt"></i> Canlı Demo
+          </a>
+        </div>
+      </div>
+
+      <!-- AI: Oyun Teorisi -->
+      <div class="project-card ai" data-cat="ai">
+        <div class="project-icon"><i class="fas fa-chess"></i></div>
+        <div class="project-title">Oyun Teorisi Simülatörü</div>
+        <div class="project-desc">
+          Oyun teorisi kavramlarını (Nash denge, Prisoner's Dilemma vb.) görsel olarak simüle eden
+          eğitici web uygulaması. YBS ders projesi kapsamında geliştirilen interaktif araç.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag purple">Oyun Teorisi</span>
+          <span class="project-tag blue">Simülasyon</span>
+          <span class="project-tag green">HTML/CSS/JS</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/oyun_teorisi" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Web: ERP Final -->
+      <div class="project-card web" data-cat="web">
+        <div class="project-icon"><i class="fas fa-building"></i></div>
+        <div class="project-title">ERP Yönetim Sistemi</div>
+        <div class="project-desc">
+          Kurumsal kaynak planlama (ERP) sistemi. Stok yönetimi, sipariş takibi ve raporlama
+          modüllerini içeren kapsamlı bir işletme yönetim platformu.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag green">ERP</span>
+          <span class="project-tag blue">HTML/CSS</span>
+          <span class="project-tag orange">JavaScript</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/erpfinal" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Web: Tedarik Zinciri -->
+      <div class="project-card web" data-cat="web">
+        <div class="project-icon"><i class="fas fa-truck"></i></div>
+        <div class="project-title">Tedarik Zinciri Yönetimi</div>
+        <div class="project-desc">
+          Tedarik zinciri yönetim sistemi. Sipariş akışı, tedarikçi yönetimi ve lojistik
+          takip modüllerini barındıran web tabanlı işletme uygulaması.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag green">Supply Chain</span>
+          <span class="project-tag blue">Web App</span>
+          <span class="project-tag orange">HTML/JS</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/tedarikzincirifinal" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Web: Otel Rezervasyon -->
+      <div class="project-card web" data-cat="web">
+        <div class="project-icon"><i class="fas fa-hotel"></i></div>
+        <div class="project-title">Otel Rezervasyon Sistemi</div>
+        <div class="project-desc">
+          Visual Studio ile geliştirilmiş C# tabanlı otel rezervasyon yönetim sistemi.
+          Oda takibi, müşteri yönetimi ve rezervasyon takvimi içeren masaüstü uygulaması.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag purple">C#</span>
+          <span class="project-tag blue">Visual Studio</span>
+          <span class="project-tag green">.NET</span>
+          <span class="project-tag orange">SQL</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/Otel-Rezervasyon-sistemi" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Web: Portfolio -->
+      <div class="project-card web" data-cat="web">
+        <div class="project-icon"><i class="fas fa-globe"></i></div>
+        <div class="project-title">Kişisel Portfolyo v1</div>
+        <div class="project-desc">
+          İlk kişisel portfolyo web sitesi. Unity WebGL oyunlarını ve projelerimi sergileyen
+          responsive tasarımlı kişisel tanıtım sayfası.
+        </div>
+        <div class="project-tags">
+          <span class="project-tag blue">HTML/CSS</span>
+          <span class="project-tag green">Unity WebGL</span>
+          <span class="project-tag orange">GitHub Pages</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/aslan-droid/portfolyo" target="_blank" class="proj-link">
+            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
+          </a>
+          <a href="https://cumaaslan.com.tr" target="_blank" class="proj-link secondary">
+            <i class="fas fa-external-link-alt"></i> Canlı Site
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">// get_in_touch()</span>
+      <h2 class="section-title">İletişime Geç</h2>
+      <p class="section-desc">Proje fikirlerin, iş birliği tekliflerin veya sadece merhaba demek istersen — iletişime geçmekten çekinme!</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <h3>Konuşalım 👋</h3>
+        <p>
+          WebXR, yapay zeka veya web geliştirme konularında iş birliği yapmak,
+          proje fikri paylaşmak ya da sadece tanışmak için mesaj at.
+        </p>
+        <div class="social-links">
+          <a href="https://github.com/aslan-droid" target="_blank" class="social-link">
+            <div class="social-icon github"><i class="fab fa-github"></i></div>
+            <div>
+              <div class="social-name">GitHub</div>
+              <div class="social-handle">@aslan-droid</div>
+            </div>
+            <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--text3)"></i>
+          </a>
+          <a href="mailto:cuma@cumaaslan.com.tr" class="social-link">
+            <div class="social-icon mail"><i class="fas fa-envelope"></i></div>
+            <div>
+              <div class="social-name">E-posta</div>
+              <div class="social-handle">cuma@cumaaslan.com.tr</div>
+            </div>
+            <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--text3)"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-card reveal">
+        <h4>Mesaj Gönder</h4>
+        <div class="form-group">
+          <label>Ad Soyad</label>
+          <input type="text" placeholder="Adınız Soyadınız" />
+        </div>
+        <div class="form-group">
+          <label>E-posta</label>
+          <input type="email" placeholder="ornek@email.com" />
+        </div>
+        <div class="form-group">
+          <label>Mesaj</label>
+          <textarea placeholder="Merhaba Cuma, seninle..."></textarea>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center" onclick="sendMsg()">
+          <i class="fas fa-paper-plane"></i> Gönder
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>© 2026 <span>Cuma ASLAN</span> · İskenderun Teknik Üniversitesi YBS · Made with <span>❤</span> & Three.js</p>
+</footer>
+
+<!-- ===== M-SPORT TELEMETRY OVERLAY ===== -->
+<div id="telemetry-overlay">
+  <div class="tele-header">
+    <div class="tele-logo">
+      <div class="tele-logo-badge">M-SPORT</div>
+      <div>
+        <div class="tele-logo-text">TELEMETRY DASHBOARD</div>
+        <div class="tele-logo-sub">Live Race Data · 2026 Season</div>
+      </div>
+    </div>
+    <button class="tele-close" onclick="closeTelemetry()">✕ EXIT MODE</button>
+  </div>
+
+  <div class="tele-body">
+
+    <!-- Speed -->
+    <div class="tele-panel" data-label="SPEED">
+      <div class="tele-panel-content">
+        <div class="tele-big-num" id="t-speed">0</div>
+        <div class="tele-unit">KM/H</div>
+        <div class="tele-bar-wrap"><div class="tele-bar red" id="t-speed-bar" style="width:0%"></div></div>
+        <div class="tele-label">MAX 340 KM/H</div>
+      </div>
+    </div>
+
+    <!-- Gear -->
+    <div class="tele-panel" data-label="GEAR">
+      <div class="tele-panel-content" style="text-align:center">
+        <div class="gear-display" id="t-gear">N</div>
+        <div class="tele-unit" style="text-align:center">CURRENT GEAR</div>
+        <div class="tele-btn-row" style="margin-top:0.75rem">
+          <div class="tele-btn active-drs" id="t-drs-btn">DRS ON</div>
+          <div class="tele-btn warning" id="t-ers-btn">ERS 70%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RPM -->
+    <div class="tele-panel" data-label="ENGINE RPM">
+      <div class="tele-panel-content">
+        <div class="tele-big-num" id="t-rpm">0</div>
+        <div class="tele-unit">RPM × 1000</div>
+        <div class="tele-bar-wrap"><div class="tele-bar yellow" id="t-rpm-bar" style="width:0%"></div></div>
+        <div class="tele-label">REDLINE 18,000 RPM</div>
+      </div>
+    </div>
+
+    <!-- Throttle / Brake -->
+    <div class="tele-panel" data-label="PEDALS">
+      <div class="tele-panel-content">
+        <div class="tele-grid-2">
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-throttle" style="color:#00e676">0%</div>
+            <div class="tele-metric-label">THROTTLE</div>
+          </div>
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-brake" style="color:var(--ms-red)">0%</div>
+            <div class="tele-metric-label">BRAKE</div>
+          </div>
+        </div>
+        <div style="margin-top:0.75rem">
+          <div class="tele-bar-wrap"><div class="tele-bar green" id="t-throttle-bar" style="width:0%"></div></div>
+          <div class="tele-label" style="margin-bottom:0.4rem">THROTTLE</div>
+          <div class="tele-bar-wrap"><div class="tele-bar red" id="t-brake-bar" style="width:0%"></div></div>
+          <div class="tele-label">BRAKE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tire Temps -->
+    <div class="tele-panel" data-label="TYRE TEMPS (°C)">
+      <div class="tele-panel-content">
+        <div class="tire-grid">
+          <div class="tire-box warm" id="t-fl">
+            <div class="tire-temp" id="t-fl-val">94°</div>
+            <div class="tire-label">FL</div>
+          </div>
+          <div class="tire-box hot" id="t-fr">
+            <div class="tire-temp" id="t-fr-val">97°</div>
+            <div class="tire-label">FR</div>
+          </div>
+          <div class="tire-box cool" id="t-rl">
+            <div class="tire-temp" id="t-rl-val">88°</div>
+            <div class="tire-label">RL</div>
+          </div>
+          <div class="tire-box warm" id="t-rr">
+            <div class="tire-temp" id="t-rr-val">91°</div>
+            <div class="tire-label">RR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G-Forces -->
+    <div class="tele-panel" data-label="G-FORCES">
+      <div class="tele-panel-content">
+        <div class="tele-grid-2">
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-glat">0.0g</div>
+            <div class="tele-metric-label">LATERAL</div>
+          </div>
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-glon">0.0g</div>
+            <div class="tele-metric-label">LONGITUDINAL</div>
+          </div>
+        </div>
+        <div style="margin-top:0.75rem">
+          <div class="tele-bar-wrap"><div class="tele-bar blue" id="t-g-bar" style="width:50%"></div></div>
+          <div class="tele-label">G-FORCE METER</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lap / Sector Info -->
+    <div class="tele-panel tele-span-3" data-label="LAP TIMING">
+      <div class="tele-panel-content">
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.75rem">
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-lap" style="color:#4a90e2">0</div>
+            <div class="tele-metric-label">LAP</div>
+          </div>
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-pos" style="color:var(--ms-red)">P1</div>
+            <div class="tele-metric-label">POSITION</div>
+          </div>
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-laptime" style="color:#ffd600">1:23.4</div>
+            <div class="tele-metric-label">LAST LAP</div>
+          </div>
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-bestlap" style="color:#00e676">1:22.1</div>
+            <div class="tele-metric-label">BEST LAP</div>
+          </div>
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-fuel" style="color:#f5a623">78%</div>
+            <div class="tele-metric-label">FUEL</div>
+          </div>
+          <div class="tele-metric">
+            <div class="tele-metric-val" id="t-compound" style="color:white">SOFT</div>
+            <div class="tele-metric-label">COMPOUND</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tele-status">
+    <div class="status-dot"></div>
+    <span id="tele-status-text">LIVE · TELEMETRY ACTIVE</span>
+    <span>|</span>
+    <span id="tele-circuit">Circuit: Bahrain International Circuit</span>
+    <span>|</span>
+    <span>Driver: ASLAN #14</span>
+    <span>|</span>
+    <span id="tele-time">--:--:--</span>
+  </div>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+  /* ============================================
+     THREE.JS — Floating Particles Background
+  ============================================ */
+  (function() {
+    const canvas = document.getElementById('three-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 30;
+
+    // Particle system
+    const count = 600;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+
+    const palette = [
+      new THREE.Color(0x3b82f6),
+      new THREE.Color(0x6366f1),
+      new THREE.Color(0x8b5cf6),
+      new THREE.Color(0xa78bfa),
+      new THREE.Color(0xc4b5fd),
+    ];
+
+    for (let i = 0; i < count; i++) {
+      positions[i*3]   = (Math.random() - 0.5) * 80;
+      positions[i*3+1] = (Math.random() - 0.5) * 80;
+      positions[i*3+2] = (Math.random() - 0.5) * 40;
+      const c = palette[Math.floor(Math.random() * palette.length)];
+      colors[i*3]   = c.r;
+      colors[i*3+1] = c.g;
+      colors[i*3+2] = c.b;
+      sizes[i] = Math.random() * 3 + 1;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const material = new THREE.PointsMaterial({
+      size: 0.25,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.55,
+      sizeAttenuation: true,
+    });
+
+    const particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+
+    // Subtle lines
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.06 });
+    for (let i = 0; i < 20; i++) {
+      const lGeo = new THREE.BufferGeometry();
+      const pts = [];
+      const x = (Math.random() - 0.5) * 80;
+      const y = (Math.random() - 0.5) * 80;
+      pts.push(new THREE.Vector3(x, y, -10));
+      pts.push(new THREE.Vector3(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, -10));
+      lGeo.setFromPoints(pts);
+      scene.add(new THREE.Line(lGeo, lineMat));
+    }
+
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 0.3;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 0.3;
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      particles.rotation.y = t * 0.03 + mouseX;
+      particles.rotation.x = t * 0.015 + mouseY;
+      renderer.render(scene, camera);
+    }
+    animate();
+  })();
+
+  /* ============================================
+     NAVIGATION
+  ============================================ */
+  function toggleNav() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+
+  // Close menu on link click
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+  });
+
+  /* ============================================
+     SCROLL REVEAL
+  ============================================ */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* ============================================
+     PROJECT FILTER
+  ============================================ */
+  function filterProjects(cat, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('.project-card').forEach(card => {
+      if (cat === 'all' || card.dataset.cat === cat) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  /* ============================================
+     CONTACT FORM
+  ============================================ */
+  function sendMsg() {
+    const btn = event.target.closest('button');
+    btn.innerHTML = '<i class="fas fa-check"></i> Gönderildi!';
+    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    setTimeout(() => {
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gönder';
+      btn.style.background = '';
+    }, 3000);
+  }
+
+  /* ============================================
+     M-SPORT TELEMETRY MODE
+  ============================================ */
+  let telemInterval = null;
+  let simTime = 0;
+  let currentLap = 1;
+  let lapProgress = 0;
+
+  const circuits = [
+    'Bahrain International Circuit',
+    'Jeddah Corniche Circuit',
+    'Albert Park – Melbourne',
+    'Baku City Circuit',
+    'Circuit de Monaco',
+    'Circuit de Barcelona-Catalunya',
+    'Silverstone Circuit',
+    'Monza – Temple of Speed',
+    'Suzuka Circuit',
+    'Yas Marina Circuit'
+  ];
+
+  const gears = ['N','1','2','3','4','5','6','7','8'];
+  const compounds = ['SOFT','MEDIUM','HARD','INTER','WET'];
+
+  function openTelemetry(e) {
+    e.preventDefault();
+    document.getElementById('telemetry-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('tele-circuit').textContent = 'Circuit: ' + circuits[Math.floor(Math.random() * circuits.length)];
+    document.getElementById('t-compound').textContent = compounds[Math.floor(Math.random() * 3)];
+    simTime = 0;
+    startTelemetry();
+  }
+
+  function closeTelemetry() {
+    document.getElementById('telemetry-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+    if (telemInterval) clearInterval(telemInterval);
+  }
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function startTelemetry() {
+    if (telemInterval) clearInterval(telemInterval);
+
+    // Simulate a lap profile
+    let targetSpeed = 0, currentSpeed = 0;
+    let targetThrottle = 0, currentThrottle = 0;
+    let targetBrake = 0, currentBrake = 0;
+    let phase = 0; // 0=accel, 1=top, 2=brake, 3=corner, 4=exit
+
+    const phaseDurations = [3, 5, 2, 3, 2]; // seconds
+    let phaseTime = 0;
+
+    telemInterval = setInterval(() => {
+      simTime += 0.1;
+      phaseTime += 0.1;
+      lapProgress += 0.1;
+
+      // Advance phase
+      if (phaseTime >= phaseDurations[phase]) {
+        phaseTime = 0;
+        phase = (phase + 1) % phaseDurations.length;
+        if (phase === 0) {
+          currentLap++;
+          lapProgress = 0;
+        }
+      }
+
+      // Set targets based on phase
+      switch (phase) {
+        case 0: // acceleration
+          targetSpeed = 220 + Math.random() * 40;
+          targetThrottle = 90 + Math.random() * 10;
+          targetBrake = 0;
+          break;
+        case 1: // top speed
+          targetSpeed = 290 + Math.random() * 50;
+          targetThrottle = 98 + Math.random() * 2;
+          targetBrake = 0;
+          break;
+        case 2: // braking
+          targetSpeed = 100 + Math.random() * 60;
+          targetThrottle = Math.random() * 10;
+          targetBrake = 70 + Math.random() * 30;
+          break;
+        case 3: // corner
+          targetSpeed = 80 + Math.random() * 60;
+          targetThrottle = 40 + Math.random() * 30;
+          targetBrake = Math.random() * 20;
+          break;
+        case 4: // exit
+          targetSpeed = 150 + Math.random() * 80;
+          targetThrottle = 70 + Math.random() * 30;
+          targetBrake = 0;
+          break;
+      }
+
+      currentSpeed = lerp(currentSpeed, targetSpeed, 0.08);
+      currentThrottle = lerp(currentThrottle, targetThrottle, 0.1);
+      currentBrake = lerp(currentBrake, targetBrake, 0.1);
+
+      const speedInt = Math.round(currentSpeed);
+      const throttleInt = Math.round(currentThrottle);
+      const brakeInt = Math.round(currentBrake);
+      const rpm = Math.round((speedInt / 340) * 18000 * (0.85 + Math.random() * 0.15));
+      const gearIdx = Math.min(8, Math.max(1, Math.round(speedInt / 42)));
+      const glat = ((Math.random() - 0.5) * 5 * (phase === 3 ? 1 : 0.3)).toFixed(1);
+      const glon = (phase === 2 ? -(1.5 + Math.random() * 3.5) : (phase === 0 ? 0.5 + Math.random() * 1.5 : Math.random() * 0.5)).toFixed(1);
+
+      // Update DOM
+      document.getElementById('t-speed').textContent = speedInt;
+      document.getElementById('t-speed-bar').style.width = (speedInt / 340 * 100) + '%';
+
+      document.getElementById('t-gear').textContent = gears[gearIdx];
+
+      document.getElementById('t-rpm').textContent = (rpm / 1000).toFixed(1);
+      document.getElementById('t-rpm-bar').style.width = (rpm / 18000 * 100) + '%';
+
+      document.getElementById('t-throttle').textContent = throttleInt + '%';
+      document.getElementById('t-throttle-bar').style.width = throttleInt + '%';
+      document.getElementById('t-brake').textContent = brakeInt + '%';
+      document.getElementById('t-brake-bar').style.width = brakeInt + '%';
+
+      document.getElementById('t-glat').textContent = glat + 'g';
+      document.getElementById('t-glon').textContent = glon + 'g';
+      const gBarPct = Math.min(100, Math.max(0, 50 + parseFloat(glat) * 10));
+      document.getElementById('t-g-bar').style.width = gBarPct + '%';
+
+      document.getElementById('t-lap').textContent = currentLap;
+
+      // Tire temps fluctuate
+      const baseTemps = [92, 96, 87, 90];
+      ['fl','fr','rl','rr'].forEach((t, i) => {
+        const temp = Math.round(baseTemps[i] + (Math.random() - 0.5) * 8 + (speedInt > 250 ? 3 : 0));
+        document.getElementById('t-' + t + '-val').textContent = temp + '°';
+        const box = document.getElementById('t-' + t);
+        box.className = 'tire-box ' + (temp > 100 ? 'hot' : temp > 90 ? 'warm' : 'cool');
+      });
+
+      // ERS
+      const ersLevel = Math.max(0, Math.min(100, 70 - simTime * 0.5 + Math.random() * 5));
+      document.getElementById('t-ers-btn').textContent = 'ERS ' + Math.round(ersLevel) + '%';
+
+      // DRS toggle
+      const drsOn = phase === 1 && speedInt > 240;
+      const drsBtn = document.getElementById('t-drs-btn');
+      drsBtn.textContent = drsOn ? 'DRS ON' : 'DRS OFF';
+      drsBtn.className = 'tele-btn ' + (drsOn ? 'active-drs' : 'off');
+
+      // Fuel
+      const fuel = Math.max(5, 78 - simTime * 0.3);
+      document.getElementById('t-fuel').textContent = Math.round(fuel) + '%';
+
+      // Clock
+      const now = new Date();
+      document.getElementById('tele-time').textContent = now.toLocaleTimeString('tr-TR');
+
+    }, 100);
+  }
+</script>
+
+</body>
+</html>
