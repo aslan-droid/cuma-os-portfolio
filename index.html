@@ -3,1218 +3,2079 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cuma ASLAN | Portfolyo</title>
-  <meta name="description" content="İskenderun Teknik Üniversitesi YBS öğrencisi Cuma ASLAN'ın kişisel portfolyo sitesi. WebXR ve Yapay Zeka projeleri." />
+  <title>Cuma ASLAN | YBS & WebXR Geliştirici</title>
+  <meta name="description" content="İskenderun Teknik Üniversitesi Yönetim Bilişim Sistemleri (YBS) öğrencisi Cuma ASLAN'ın portfolyosu. WebXR, Yapay Zeka ve Bilişim Sistemleri projeleri." />
 
+  <!-- Three.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
-      --bg: #f8fafc;
-      --bg2: #ffffff;
-      --bg3: #f1f5f9;
+      --bg: #070a13;
+      --bg-alt: #0c1222;
+      --surface: rgba(14, 22, 41, 0.75);
+      --surface-hover: rgba(20, 32, 60, 0.9);
+      --surface-card: rgba(13, 20, 38, 0.82);
+      --border: rgba(99, 140, 255, 0.16);
+      --border-bright: rgba(99, 140, 255, 0.4);
       --accent: #3b82f6;
-      --accent2: #6366f1;
-      --accent3: #8b5cf6;
-      --text: #0f172a;
-      --text2: #475569;
-      --text3: #94a3b8;
-      --border: #e2e8f0;
-      --card: #ffffff;
-      --shadow: 0 4px 24px rgba(59,130,246,0.08);
-      --shadow2: 0 8px 40px rgba(59,130,246,0.15);
-      --radius: 16px;
-      --radius2: 24px;
-      --nav-h: 64px;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --nav-height: 68px;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
     }
 
-    html { scroll-behavior: smooth; font-size: 16px; }
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
       overflow-x: hidden;
+      min-height: 100vh;
+      line-height: 1.6;
     }
 
-    /* ===== INTERACTIVE CANVAS BG ===== */
-    #bg-canvas {
+    /* ===== THREE.JS 3D CANVAS BACKGROUND ===== */
+    #three-bg {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: 0;
       pointer-events: none;
     }
 
-    /* ===== NAV ===== */
+    /* Ambient noise & grid overlay */
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 70%, rgba(139, 92, 246, 0.07) 0%, transparent 45%),
+        linear-gradient(180deg, rgba(7, 10, 19, 0.5) 0%, rgba(7, 10, 19, 0.85) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ===== NAVBAR ===== */
     nav {
       position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--nav-h);
-      background: rgba(248,250,252,0.8);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border-bottom: 1px solid rgba(226,232,240,0.6);
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-height);
+      background: rgba(7, 10, 19, 0.82);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 clamp(1rem, 5vw, 3rem);
+      padding: 0 clamp(1.2rem, 5vw, 3.5rem);
+      transition: all 0.3s ease;
     }
 
-    .nav-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent), var(--accent3));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
       text-decoration: none;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
       letter-spacing: -0.02em;
     }
 
-    .nav-links {
-      display: flex;
-      gap: 0.15rem;
-      list-style: none;
-      align-items: center;
+    .brand-tag {
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      letter-spacing: 0.05em;
     }
 
-    .nav-links a {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--text2);
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      list-style: none;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
       text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
       padding: 0.45rem 0.9rem;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       transition: all 0.2s;
     }
-    .nav-links a:hover { background: var(--bg3); color: var(--accent); }
 
-    .nav-hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
-    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
-
-    /* ===== SECTIONS ===== */
-    section {
-      position: relative;
-      z-index: 10;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: calc(var(--nav-h) + 2rem) clamp(1rem, 5vw, 3rem) 4rem;
+    .nav-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
     }
 
-    .container { max-width: 1100px; width: 100%; margin: 0 auto; }
-
-    /* ===== HERO ===== */
-    #hero { min-height: 100vh; padding-top: var(--nav-h); }
-
-    .hero-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-    }
-
-    .hero-badge {
+    .nav-cta {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.1));
-      border: 1px solid rgba(59,130,246,0.22);
-      color: var(--accent);
-      padding: 0.4rem 1rem;
+      gap: 0.45rem;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: #fff !important;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 0.48rem 1.15rem;
+      border-radius: 10px;
+      text-decoration: none;
+      margin-left: 0.6rem;
+      box-shadow: 0 4px 14px var(--accent-glow);
+      transition: all 0.25s;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(59, 130, 246, 0.55);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 6px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-main);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+
+    /* ===== CONTENT WRAPPER ===== */
+    main {
+      position: relative;
+      z-index: 10;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 clamp(1.2rem, 5vw, 3rem);
+    }
+
+    /* ===== HERO SECTION ===== */
+    #hero {
+      min-height: 100vh;
+      padding-top: calc(var(--nav-height) + 2rem);
+      padding-bottom: 4rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* Hero Left */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      padding: 0.35rem 0.95rem;
       border-radius: 50px;
       font-size: 0.78rem;
       font-weight: 600;
-      letter-spacing: 0.05em;
-      margin-bottom: 1.25rem;
-      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 1.4rem;
+      letter-spacing: 0.04em;
     }
 
-    .hero-badge .dot {
-      width: 7px; height: 7px;
-      background: var(--accent);
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
       border-radius: 50%;
-      animation: pulse-dot 2s infinite;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse-ring 2s infinite;
     }
 
-    @keyframes pulse-dot {
+    @keyframes pulse-ring {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.75); }
+      50% { opacity: 0.5; transform: scale(0.8); }
     }
 
     .hero-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.2rem, 5vw, 4rem);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      color: var(--text);
-      margin-bottom: 0.5rem;
+      font-size: clamp(2.5rem, 5.5vw, 4.4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      margin-bottom: 1.1rem;
+      color: #ffffff;
     }
 
-    .hero-title .gradient-text {
-      background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    .text-gradient {
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #38bdf8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
-    .hero-subtitle {
-      font-size: 1rem;
-      color: var(--text2);
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
-
-    .hero-desc {
-      font-size: 0.95rem;
-      color: var(--text2);
-      line-height: 1.8;
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.7;
       margin-bottom: 2rem;
+      max-width: 520px;
     }
 
-    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: white;
-      padding: 0.75rem 1.75rem;
-      border-radius: 12px;
+    .hero-sub strong {
+      color: var(--text-main);
       font-weight: 600;
-      font-size: 0.9rem;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: all 0.25s;
-      box-shadow: 0 4px 15px rgba(59,130,246,0.3);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(59,130,246,0.42); }
-
-    .btn-outline {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(255,255,255,0.7);
-      color: var(--text);
-      padding: 0.75rem 1.75rem;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-decoration: none;
-      border: 1.5px solid var(--border);
-      cursor: pointer;
-      transition: all 0.25s;
-      backdrop-filter: blur(8px);
-    }
-    .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,0.05); transform: translateY(-2px); }
-
-    /* Hero Card */
-    .hero-visual { display: flex; justify-content: center; align-items: center; }
-
-    .hero-card {
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(255,255,255,0.9);
-      border-radius: var(--radius2);
-      padding: 2rem;
-      box-shadow: var(--shadow2), 0 0 0 1px rgba(59,130,246,0.06);
-      width: 100%;
-      max-width: 360px;
-      position: relative;
-      overflow: hidden;
     }
 
-    .hero-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(59,130,246,0.03), rgba(139,92,246,0.06), rgba(99,102,241,0.03));
-      pointer-events: none;
-    }
-
-    .avatar-ring {
-      width: 76px; height: 76px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent3));
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1rem;
-      font-size: 2rem;
-      position: relative; z-index: 1;
-      box-shadow: 0 8px 24px rgba(59,130,246,0.3);
-    }
-
-    .card-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text);
-      position: relative; z-index: 1;
-    }
-
-    .card-role {
-      font-size: 0.82rem;
-      color: var(--text2);
-      margin-top: 0.2rem;
-      margin-bottom: 1.25rem;
-      position: relative; z-index: 1;
-    }
-
-    .card-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.6rem;
-      position: relative; z-index: 1;
-    }
-
-    .stat {
-      background: rgba(241,245,249,0.8);
-      border-radius: 12px;
-      padding: 0.75rem 0.4rem;
-      text-align: center;
-      border: 1px solid rgba(226,232,240,0.7);
-    }
-
-    .stat-num {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .stat-label { font-size: 0.62rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
-
-    .tech-tags {
+    .hero-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.45rem;
-      margin-top: 1.25rem;
-      position: relative; z-index: 1;
+      gap: 0.55rem;
+      margin-bottom: 2.2rem;
     }
 
-    .tag {
-      background: rgba(241,245,249,0.9);
-      border: 1px solid rgba(226,232,240,0.8);
-      color: var(--text2);
-      padding: 0.28rem 0.7rem;
+    .hero-tag {
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 0.35rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .hero-tag:hover {
+      border-color: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: #fff;
+      padding: 0.78rem 1.75rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      transition: all 0.25s;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.55);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.78rem 1.6rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      transition: all 0.25s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(45, 60, 90, 0.85);
+      border-color: var(--border-bright);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* Hero Right: Interactive Terminal */
+    .terminal-container {
+      background: rgba(9, 14, 26, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(99, 140, 255, 0.1);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      display: flex;
+      flex-direction: column;
+      height: 480px;
+    }
+
+    .terminal-header {
+      background: rgba(14, 22, 40, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .terminal-dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .tdot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .tdot-red { background: #ef4444; }
+    .tdot-yellow { background: #f59e0b; }
+    .tdot-green { background: #10b981; }
+
+    .terminal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .terminal-quick-chips {
+      padding: 0.55rem 0.9rem;
+      background: rgba(11, 18, 33, 0.8);
+      border-bottom: 1px solid rgba(99, 140, 255, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .terminal-quick-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(99, 140, 255, 0.15);
+      color: #94a3b8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.22rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .terminal-body {
+      flex: 1;
+      padding: 1rem 1.1rem;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.81rem;
+      line-height: 1.65;
+      color: #cbd5e1;
+    }
+
+    .terminal-body::-webkit-scrollbar {
+      width: 5px;
+    }
+    .terminal-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .terminal-body::-webkit-scrollbar-thumb {
+      background: rgba(99, 140, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    .t-line {
+      margin-bottom: 0.4rem;
+      word-break: break-word;
+    }
+
+    .t-prompt {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .t-user {
+      color: #60a5fa;
+    }
+
+    .t-cmd {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .t-output {
+      color: #94a3b8;
+      margin-left: 0.2rem;
+      margin-bottom: 0.65rem;
+      padding-left: 0.6rem;
+      border-left: 2px solid rgba(99, 140, 255, 0.2);
+    }
+
+    .t-highlight {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .t-success {
+      color: #34d399;
+    }
+
+    .t-warning {
+      color: #fbbf24;
+    }
+
+    .terminal-input-bar {
+      display: flex;
+      align-items: center;
+      padding: 0.7rem 1rem;
+      background: rgba(14, 22, 40, 0.95);
+      border-top: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+
+    .terminal-input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+    }
+
+    .terminal-input-field::placeholder {
+      color: #475569;
+    }
+
+    /* ===== SECTION STYLES ===== */
+    section {
+      padding: 6.5rem 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.85rem;
       border-radius: 50px;
-      font-size: 0.73rem;
-      font-weight: 500;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* ===== SECTION HEADERS ===== */
-    .section-header { text-align: center; margin-bottom: 3rem; }
-
-    .section-label {
-      display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.9rem;
     }
 
     .section-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      color: var(--text);
-      line-height: 1.2;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 0.8rem;
     }
 
     .section-desc {
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto;
       font-size: 1rem;
-      color: var(--text2);
-      margin-top: 0.75rem;
-      line-height: 1.7;
-      max-width: 560px;
-      margin-left: auto; margin-right: auto;
     }
 
-    /* ===== ABOUT ===== */
-    #about { background: transparent; }
-
-    .about-grid {
+    /* ===== YBS VISION (4 PILLARS) ===== */
+    .vision-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
-      align-items: start;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
     }
 
-    .about-text p {
-      font-size: 0.95rem;
-      color: var(--text2);
-      line-height: 1.8;
-      margin-bottom: 1rem;
+    .vision-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.6rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .about-skills {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7rem;
-      margin-top: 1.5rem;
+    .vision-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-purple));
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
-    .skill-item {
+    .vision-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--border-bright);
+      box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .vision-card:hover::before {
+      opacity: 1;
+    }
+
+    .vision-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #60a5fa;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--text2);
-    }
-    .skill-item i { color: var(--accent); width: 16px; }
-
-    .about-info-card {
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(16px) saturate(160%);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      border: 1px solid rgba(255,255,255,0.9);
-      border-radius: var(--radius2);
-      padding: 2rem;
-      box-shadow: var(--shadow);
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.4rem;
+      transition: transform 0.3s;
     }
 
-    .info-row {
+    .vision-card:hover .vision-icon {
+      transform: scale(1.1);
+    }
+
+    .vision-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.7rem;
+    }
+
+    .vision-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 1.2rem;
+    }
+
+    .vision-tags {
       display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.9rem 0;
-      border-bottom: 1px solid rgba(226,232,240,0.6);
-    }
-    .info-row:last-child { border-bottom: none; }
-
-    .info-icon {
-      width: 40px; height: 40px;
-      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.1));
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--accent);
-      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 0.4rem;
     }
 
-    .info-label { font-size: 0.73rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
-    .info-value { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .v-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.2rem 0.55rem;
+      border-radius: 5px;
+    }
 
-    /* ===== PROJECTS ===== */
-    #projects { background: rgba(241,245,249,0.7); backdrop-filter: blur(2px); }
-
-    .projects-tabs {
+    /* ===== PROJECTS SECTION ===== */
+    .project-filters {
       display: flex;
       justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 2.5rem;
       flex-wrap: wrap;
+      margin-bottom: 3rem;
     }
 
-    .tab-btn {
+    .filter-btn {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
       padding: 0.5rem 1.25rem;
       border-radius: 50px;
-      border: 1.5px solid var(--border);
-      background: rgba(255,255,255,0.8);
-      color: var(--text2);
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      backdrop-filter: blur(8px);
     }
-    .tab-btn.active, .tab-btn:hover {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 4px 14px rgba(59,130,246,0.28);
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 15px var(--accent-glow);
     }
 
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
+      gap: 1.8rem;
     }
 
     .project-card {
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(16px) saturate(160%);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      border: 1px solid rgba(255,255,255,0.95);
-      border-radius: var(--radius2);
-      padding: 1.75rem;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: var(--shadow);
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
-      overflow: hidden;
-    }
-
-    .project-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent3));
-      transform: scaleX(0);
-      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      transform-origin: left;
     }
 
     .project-card:hover {
-      transform: translateY(-8px) scale(1.01);
-      box-shadow: var(--shadow2);
-      border-color: rgba(59,130,246,0.15);
-    }
-    .project-card:hover::before { transform: scaleX(1); }
-
-    .project-icon {
-      width: 52px; height: 52px;
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-size: 1.4rem;
-      margin-bottom: 1.25rem;
+      transform: translateY(-8px);
+      border-color: var(--border-bright);
+      box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 140, 255, 0.15);
     }
 
-    .project-card.webxr .project-icon { background: linear-gradient(135deg, #06b6d4, #3b82f6); box-shadow: 0 6px 18px rgba(6,182,212,0.3); }
-    .project-card.ai .project-icon   { background: linear-gradient(135deg, #8b5cf6, #6366f1); box-shadow: 0 6px 18px rgba(139,92,246,0.3); }
-    .project-card.app .project-icon  { background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 6px 18px rgba(245,158,11,0.3); }
-
-    .project-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 0.5rem;
+    .proj-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.3rem;
     }
 
-    .project-desc {
-      font-size: 0.85rem;
-      color: var(--text2);
-      line-height: 1.68;
-      margin-bottom: 1.25rem;
-    }
-
-    .project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem; }
-
-    .project-tag {
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
+    .proj-category-badge {
       font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
     }
-    .project-tag.blue   { background: rgba(59,130,246,0.1);  color: #2563eb; }
-    .project-tag.purple { background: rgba(139,92,246,0.1);  color: #7c3aed; }
-    .project-tag.green  { background: rgba(16,185,129,0.1);  color: #059669; }
-    .project-tag.orange { background: rgba(245,158,11,0.1);  color: #d97706; }
-    .project-tag.red    { background: rgba(239,68,68,0.1);   color: #dc2626; }
 
-    .project-links { display: flex; gap: 0.75rem; }
+    .badge-webxr { background: rgba(6, 182, 212, 0.14); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-ai { background: rgba(139, 92, 246, 0.14); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .badge-desktop { background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
 
-    .proj-link {
+    .proj-icon-large {
+      font-size: 1.8rem;
+      color: #fff;
+    }
+
+    .proj-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.28rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.75rem;
+    }
+
+    .proj-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 1.4rem;
+    }
+
+    .proj-tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .tech-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.22rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(99, 140, 255, 0.12);
+      color: #cbd5e1;
+    }
+
+    .proj-footer-links {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-top: 1px solid rgba(99, 140, 255, 0.1);
+      padding-top: 1.2rem;
+    }
+
+    .proj-btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.8rem;
+      gap: 0.45rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      color: var(--accent);
+      color: #fff;
+      background: rgba(59, 130, 246, 0.14);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 0.45rem 0.95rem;
+      border-radius: 8px;
       text-decoration: none;
-      transition: gap 0.2s;
+      transition: all 0.2s;
     }
-    .proj-link:hover { gap: 0.65rem; }
-    .proj-link.secondary { color: var(--text3); }
-    .proj-link.secondary:hover { color: var(--text2); }
 
-    /* ===== CONTACT ===== */
-    #contact { background: transparent; }
+    .proj-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .proj-btn-live {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
+    .proj-btn-live:hover {
+      background: #10b981;
+      border-color: #10b981;
+      color: #fff;
+    }
+
+    /* ===== ABOUT SECTION ===== */
+    #about {
+      background: linear-gradient(180deg, transparent 0%, rgba(12, 18, 34, 0.6) 50%, transparent 100%);
+    }
+
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    .about-text h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.1rem;
+    }
+
+    .about-text p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 1.1rem;
+    }
+
+    .about-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .stat-box {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.2rem 1rem;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #60a5fa;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* About Info Card (Right) */
+    .profile-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 1.8rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(99, 140, 255, 0.12);
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .profile-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .profile-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .info-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .info-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .info-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .info-val {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-top: 0.1rem;
+    }
+
+    /* ===== CONTACT SECTION ===== */
+    #contact {
+      padding-bottom: 7rem;
+    }
 
     .contact-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 3rem;
+      gap: 3.5rem;
       align-items: start;
     }
 
-    .contact-info h3 {
+    .contact-intro h3 {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.8rem;
+      font-size: 1.9rem;
       font-weight: 700;
-      color: var(--text);
-      margin-bottom: 1rem;
+      color: #fff;
+      margin-bottom: 0.9rem;
     }
 
-    .contact-info p { color: var(--text2); line-height: 1.75; margin-bottom: 1.5rem; }
+    .contact-intro p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
 
-    .social-links { display: flex; flex-direction: column; gap: 0.75rem; }
+    .contact-channels {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
 
-    .social-link {
+    .channel-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.4rem;
+      text-decoration: none;
+      color: var(--text-main);
+      transition: all 0.25s;
+    }
+
+    .channel-card:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-bright);
+      transform: translateX(6px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .channel-left {
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 1rem 1.25rem;
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.9);
-      border-radius: var(--radius);
-      text-decoration: none;
-      color: var(--text);
-      transition: all 0.25s;
-      box-shadow: var(--shadow);
-    }
-    .social-link:hover {
-      transform: translateX(7px);
-      border-color: rgba(59,130,246,0.25);
-      box-shadow: var(--shadow2);
     }
 
-    .social-icon {
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-    .social-icon.github   { background: #24292f; color: white; }
-    .social-icon.linkedin { background: #0077b5; color: white; }
-    .social-icon.mail     { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
-
-    .social-name { font-weight: 600; font-size: 0.9rem; }
-    .social-handle { font-size: 0.78rem; color: var(--text3); }
-
-    .contact-card {
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(16px) saturate(160%);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      border: 1px solid rgba(255,255,255,0.9);
-      border-radius: var(--radius2);
-      padding: 2rem;
-      box-shadow: var(--shadow);
+    .channel-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
     }
 
-    .contact-card h4 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 1.25rem;
-      color: var(--text);
-    }
+    .c-gmail { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .c-linkedin { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+    .c-github { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
 
-    .form-group { margin-bottom: 1rem; }
-
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
+    .channel-title {
+      font-size: 0.92rem;
       font-weight: 600;
-      color: var(--text2);
-      margin-bottom: 0.4rem;
+      color: #fff;
     }
 
-    .form-group input,
-    .form-group textarea {
+    .channel-handle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    /* Contact Form */
+    .contact-form-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input, .form-textarea {
       width: 100%;
-      padding: 0.75rem 1rem;
-      background: rgba(241,245,249,0.7);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.9rem;
-      color: var(--text);
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 1rem;
+      color: #fff;
       font-family: 'Inter', sans-serif;
-      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.9rem;
+      transition: all 0.2s;
     }
 
-    .form-group input:focus,
-    .form-group textarea:focus {
+    .form-input:focus, .form-textarea:focus {
       outline: none;
       border-color: var(--accent);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: rgba(20, 32, 60, 0.85);
     }
 
-    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 18px var(--accent-glow);
+      transition: all 0.25s;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(59, 130, 246, 0.6);
+    }
 
     /* ===== FOOTER ===== */
     footer {
-      position: relative; z-index: 10;
-      background: var(--text);
-      color: var(--text3);
-      text-align: center;
-      padding: 2rem;
+      border-top: 1px solid var(--border);
+      background: rgba(5, 8, 16, 0.95);
+      padding: 2.2rem 0;
       font-size: 0.85rem;
+      color: var(--text-dim);
+      text-align: center;
     }
-    footer span { color: var(--accent); }
 
-    /* ===== SCROLL REVEAL ===== */
-    .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
     }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    /* ===== MOBILE ===== */
-    @media (max-width: 768px) {
-      .hero-content, .about-grid, .contact-grid { grid-template-columns: 1fr; }
-      .hero-visual { display: none; }
-      .nav-links {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: var(--nav-h); left: 0; right: 0;
-        background: rgba(248,250,252,0.96);
-        padding: 1rem;
-        border-bottom: 1px solid var(--border);
-        backdrop-filter: blur(20px);
+    .footer-links {
+      display: flex;
+      gap: 1.2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+      .hero-grid, .about-layout, .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
       }
-      .nav-links.open { display: flex; }
-      .nav-hamburger { display: flex; }
+      .terminal-container {
+        height: 420px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu {
+        display: none;
+        position: absolute;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        background: rgba(7, 10, 19, 0.98);
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+      }
+      .nav-menu.active {
+        display: flex;
+      }
+      .hamburger {
+        display: flex;
+      }
+      .about-stats-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
 
-<!-- ===== INTERACTIVE BACKGROUND CANVAS ===== -->
-<canvas id="bg-canvas"></canvas>
+  <!-- Three.js 3D Background Canvas -->
+  <canvas id="three-bg"></canvas>
+  <div class="bg-overlay"></div>
 
-<!-- ===== NAVIGATION ===== -->
-<nav>
-  <a href="#hero" class="nav-logo">CA.dev</a>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#about">Hakkımda</a></li>
-    <li><a href="#projects">Projeler</a></li>
-    <li><a href="#contact">İletişim</a></li>
-  </ul>
-  <div class="nav-hamburger" id="hamburger" onclick="toggleNav()">
-    <span></span><span></span><span></span>
-  </div>
-</nav>
+  <!-- Header / Navigation -->
+  <nav id="navbar">
+    <a href="#hero" class="brand-logo">
+      <i class="fa-solid fa-cube text-gradient"></i>
+      <span>Cuma ASLAN</span>
+      <span class="brand-tag">YBS</span>
+    </a>
 
-<!-- ===== HERO ===== -->
-<section id="hero">
-  <div class="container">
-    <div class="hero-content">
-      <div class="hero-left">
-        <div class="hero-badge">
-          <span class="dot"></span>
-          İSKENDERUN TEKNİK ÜNİVERSİTESİ · YBS
-        </div>
-        <h1 class="hero-title">
-          Merhaba, ben<br>
-          <span class="gradient-text">Cuma ASLAN</span>
-        </h1>
-        <p class="hero-subtitle">Yönetim Bilişim Sistemleri Öğrencisi & Full-Stack Developer</p>
-        <p class="hero-desc">
-          WebXR / AR deneyimleri ve yapay zeka uygulamaları geliştiriyorum.
-          İskenderun Teknik Üniversitesi'nde YBS eğitimim boyunca gerçek dünya problemlerine
-          teknoloji odaklı çözümler üretmeye devam ediyorum.
-        </p>
-        <div class="hero-btns">
-          <a href="#projects" class="btn-primary">
-            <i class="fas fa-rocket"></i> Projeleri Gör
-          </a>
-          <a href="https://github.com/aslan-droid" target="_blank" class="btn-outline">
-            <i class="fab fa-github"></i> GitHub
-          </a>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <div class="hero-card">
-          <div class="avatar-ring">🚀</div>
-          <div class="card-name">Cuma ASLAN</div>
-          <div class="card-role">YBS Öğrencisi @ İSTEÜ · Full-Stack Dev</div>
-          <div class="card-stats">
-            <div class="stat">
-              <div class="stat-num">14+</div>
-              <div class="stat-label">Repo</div>
+    <ul class="nav-menu" id="navMenu">
+      <li><a href="#vision" class="nav-link">YBS Vizyonu</a></li>
+      <li><a href="#projects" class="nav-link">Projeler</a></li>
+      <li><a href="#about" class="nav-link">Hakkımda</a></li>
+      <li><a href="#contact" class="nav-cta"><i class="fa-solid fa-paper-plane"></i> İletişim</a></li>
+    </ul>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section id="hero">
+      <div class="container">
+        <div class="hero-grid">
+          
+          <!-- Left Col -->
+          <div class="hero-content">
+            <div class="status-pill">
+              <span class="status-dot"></span>
+              <span>İSTEÜ · YBS (YÖNETİM BİLİŞİM SİSTEMLERİ)</span>
             </div>
-            <div class="stat">
-              <div class="stat-num">3+</div>
-              <div class="stat-label">WebXR</div>
+
+            <h1 class="hero-title">
+              Teknoloji &amp; Veriyi<br />
+              <span class="text-gradient">Geleceğe Taşır</span>
+            </h1>
+
+            <p class="hero-sub">
+              Merhaba, ben <strong>Cuma ASLAN</strong>. İskenderun Teknik Üniversitesi Yönetim Bilişim Sistemleri öğrencisiyim.
+              <strong>WebXR / AR deneyimleri</strong>, <strong>Yapay Zeka</strong> modelleri ve kurumsal bilgi sistemleri mimarileri tasarlıyorum.
+            </p>
+
+            <div class="hero-tags">
+              <span class="hero-tag"><i class="fa-solid fa-vr-cardboard"></i> WebXR / AR</span>
+              <span class="hero-tag"><i class="fa-solid fa-brain"></i> Yapay Zeka</span>
+              <span class="hero-tag"><i class="fa-solid fa-database"></i> Veri Sistemleri</span>
+              <span class="hero-tag"><i class="fa-brands fa-unity"></i> Unity WebGL</span>
+              <span class="hero-tag"><i class="fa-solid fa-code"></i> C# / .NET</span>
             </div>
-            <div class="stat">
-              <div class="stat-num">5+</div>
-              <div class="stat-label">AI Proj</div>
+
+            <div class="hero-actions">
+              <a href="#projects" class="btn-main">
+                <i class="fa-solid fa-layer-group"></i> Projeleri İncele
+              </a>
+              <a href="#contact" class="btn-secondary">
+                <i class="fa-regular fa-envelope"></i> aslancuma45@gmail.com
+              </a>
             </div>
           </div>
-          <div class="tech-tags">
-            <span class="tag">WebXR</span>
-            <span class="tag">MindAR</span>
-            <span class="tag">Python</span>
-            <span class="tag">C#</span>
-            <span class="tag">Unity</span>
-            <span class="tag">AI/ML</span>
+
+          <!-- Right Col: Interactive Live Terminal -->
+          <div class="terminal-container">
+            <div class="terminal-header">
+              <div class="terminal-dots">
+                <span class="tdot tdot-red"></span>
+                <span class="tdot tdot-yellow"></span>
+                <span class="tdot tdot-green"></span>
+              </div>
+              <div class="terminal-title">
+                <i class="fa-solid fa-terminal"></i> cuma@isteu:~/ybs-portfolio (bash)
+              </div>
+              <div style="font-size:0.7rem; color:#64748b; font-family:'JetBrains Mono',monospace;">v2.5</div>
+            </div>
+
+            <!-- Quick click command chips -->
+            <div class="terminal-quick-chips">
+              <button class="chip-btn" onclick="executeTerm('whoami')">$ whoami</button>
+              <button class="chip-btn" onclick="executeTerm('ybs')">$ ybs</button>
+              <button class="chip-btn" onclick="executeTerm('projects')">$ projects</button>
+              <button class="chip-btn" onclick="executeTerm('skills')">$ skills</button>
+              <button class="chip-btn" onclick="executeTerm('contact')">$ contact</button>
+              <button class="chip-btn" onclick="executeTerm('clear')">$ clear</button>
+            </div>
+
+            <div class="terminal-body" id="termOutput">
+              <div class="t-line">
+                <span class="t-prompt">➜</span> <span class="t-user">cuma@isteu</span>:<span class="t-highlight">~</span>$ <span class="t-cmd">init-profile</span>
+              </div>
+              <div class="t-output">
+                <div>[✔] Sistem Yüklendi: <span class="t-highlight">Cuma ASLAN // YBS Developer</span></div>
+                <div>[✔] Üniversite: <span class="t-success">İskenderun Teknik Üniversitesi (İSTE)</span></div>
+                <div>[✔] Odak: <span class="t-highlight">WebXR (Siber Dedektif, MindAR) • Yapay Zeka • C# Sistemler</span></div>
+                <div style="margin-top:0.3rem; color:#94a3b8;">Komutları denemek için yukarıdaki butonlara tıklayabilir veya aşağıya <span class="t-warning">'help'</span> yazabilirsiniz.</div>
+              </div>
+            </div>
+
+            <div class="terminal-input-bar">
+              <span class="t-prompt" style="font-family:'JetBrains Mono',monospace;">➜</span>
+              <input type="text" id="termInput" class="terminal-input-field" placeholder="Komut yazın (örn: help, projects, ybs)..." autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- YBS VISION SECTION -->
+    <section id="vision">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge"><i class="fa-solid fa-network-wired"></i> Bilişim Mimarisi</div>
+          <h2 class="section-title">YBS Vizyonu &amp; Yetkinlikler</h2>
+          <p class="section-desc">
+            Yönetim Bilişim Sistemleri (MIS); iş dünyasının stratejik hedefleri ile modern bilgi teknolojilerinin dönüştürücü gücünü buluşturan disiplindir.
+          </p>
+        </div>
+
+        <div class="vision-grid">
+          <!-- Pillar 1 -->
+          <div class="vision-card">
+            <div class="vision-icon">
+              <i class="fa-solid fa-vr-cardboard"></i>
+            </div>
+            <h3 class="vision-title">WebXR &amp; Spatial Bilişim</h3>
+            <p class="vision-desc">
+              Tarayıcı tabanlı artırılmış ve sanal gerçeklik çözümleri. MindAR ve WebGL teknolojileri ile kullanıcı etkileşimini üç boyuta taşıma.
+            </p>
+            <div class="vision-tags">
+              <span class="v-tag">MindAR.js</span>
+              <span class="v-tag">WebXR API</span>
+              <span class="v-tag">Three.js</span>
+              <span class="v-tag">PlayCanvas</span>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="vision-card">
+            <div class="vision-icon" style="color:#a78bfa; background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.3);">
+              <i class="fa-solid fa-brain"></i>
+            </div>
+            <h3 class="vision-title">Yapay Zeka &amp; Karar Destek</h3>
+            <p class="vision-desc">
+              İnsan kaynakları ve yönetimsel karar süreçlerinde yapay zekayı ve doğal dil işlemeyi (NLP) kullanarak süreçleri otomatize etme.
+            </p>
+            <div class="vision-tags">
+              <span class="v-tag">AI Simülasyonu</span>
+              <span class="v-tag">NLP</span>
+              <span class="v-tag">Python</span>
+              <span class="v-tag">Karar Destek</span>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="vision-card">
+            <div class="vision-icon" style="color:#34d399; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3);">
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <h3 class="vision-title">Veri &amp; Süreç Mimarisi</h3>
+            <p class="vision-desc">
+              Kurumsal kaynakların entegrasyonu, ilişkisel veritabanı yönetimi ve veri akışlarının optimize edilmesi.
+            </p>
+            <div class="vision-tags">
+              <span class="v-tag">SQL</span>
+              <span class="v-tag">Veritabanı Tasarımı</span>
+              <span class="v-tag">Veri Akışı</span>
+              <span class="v-tag">MIS Metodolojisi</span>
+            </div>
+          </div>
+
+          <!-- Pillar 4 -->
+          <div class="vision-card">
+            <div class="vision-icon" style="color:#fbbf24; background:rgba(245,158,11,0.12); border-color:rgba(245,158,11,0.3);">
+              <i class="fa-solid fa-laptop-code"></i>
+            </div>
+            <h3 class="vision-title">Yazılım &amp; Sistem Geliştirme</h3>
+            <p class="vision-desc">
+              C#, .NET masaüstü otomasyonları ve modern JavaScript kütüphaneleri ile stabil, güvenli ve sürdürülebilir sistemler inşa etme.
+            </p>
+            <div class="vision-tags">
+              <span class="v-tag">C#</span>
+              <span class="v-tag">.NET</span>
+              <span class="v-tag">JavaScript / ES6+</span>
+              <span class="v-tag">REST API</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ===== ABOUT ===== -->
-<section id="about">
-  <div class="container">
-    <div class="section-header reveal">
-      <span class="section-label">// about.me</span>
-      <h2 class="section-title">Kim Bu Cuma?</h2>
-      <p class="section-desc">İskenderun Teknik Üniversitesi'nde Yönetim Bilişim Sistemleri okurken teknolojinin sınırlarını zorlamayı seviyorum.</p>
-    </div>
+    <!-- PROJECTS SECTION -->
+    <section id="projects">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge"><i class="fa-solid fa-folder-open"></i> Projeler</div>
+          <h2 class="section-title">Öne Çıkan Çalışmalar</h2>
+          <p class="section-desc">
+            WebXR, Yapay Zeka ve Sistem Geliştirme alanlarında hayata geçirdiğim projelerim.
+          </p>
+        </div>
 
-    <div class="about-grid">
-      <div class="about-text reveal">
-        <p>
-          İskenderun Teknik Üniversitesi Yönetim Bilişim Sistemleri bölümünde öğrenciyim.
-          Web teknolojileri, Artırılmış Gerçeklik (AR/WebXR) ve yapay zeka uygulamaları üzerinde
-          aktif olarak projeler geliştiriyorum.
-        </p>
-        <p>
-          MindAR ile marker tabanlı AR uygulamaları, Unity ile WebGL oyunları ve yapay zeka destekli
-          web uygulamaları geliştiriyorum. Kullanıcı deneyimini yenilikçi teknolojilerle bir üst
-          seviyeye taşımak en büyük motivasyon kaynağım.
-        </p>
-        <div class="about-skills">
-          <div class="skill-item"><i class="fas fa-check-circle"></i> WebXR / MindAR</div>
-          <div class="skill-item"><i class="fas fa-check-circle"></i> React / JavaScript</div>
-          <div class="skill-item"><i class="fas fa-check-circle"></i> Python / AI & ML</div>
-          <div class="skill-item"><i class="fas fa-check-circle"></i> Unity / C#</div>
-          <div class="skill-item"><i class="fas fa-check-circle"></i> Node.js / Backend</div>
-          <div class="skill-item"><i class="fas fa-check-circle"></i> SQL / Veritabanı</div>
+        <!-- Filter tabs -->
+        <div class="project-filters">
+          <button class="filter-btn active" onclick="filterProjects('all', this)">Tümü</button>
+          <button class="filter-btn" onclick="filterProjects('webxr', this)">WebXR / AR</button>
+          <button class="filter-btn" onclick="filterProjects('ai', this)">Yapay Zeka</button>
+          <button class="filter-btn" onclick="filterProjects('desktop', this)">Masaüstü &amp; Sistem</button>
         </div>
-      </div>
 
-      <div class="about-info-card reveal">
-        <div class="info-row">
-          <div class="info-icon"><i class="fas fa-university"></i></div>
-          <div>
-            <div class="info-label">Üniversite</div>
-            <div class="info-value">İskenderun Teknik Üniversitesi</div>
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-icon"><i class="fas fa-graduation-cap"></i></div>
-          <div>
-            <div class="info-label">Bölüm</div>
-            <div class="info-value">Yönetim Bilişim Sistemleri (YBS)</div>
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
-          <div>
-            <div class="info-label">Konum</div>
-            <div class="info-value">İskenderun, Hatay, Türkiye</div>
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-icon"><i class="fas fa-code"></i></div>
-          <div>
-            <div class="info-label">Odak Alanları</div>
-            <div class="info-value">WebXR · AI · Game Dev</div>
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-icon"><i class="fas fa-globe"></i></div>
-          <div>
-            <div class="info-label">Web Sitesi</div>
-            <div class="info-value">cumaaslan.com.tr</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== PROJECTS ===== -->
-<section id="projects">
-  <div class="container">
-    <div class="section-header reveal">
-      <span class="section-label">// my_projects[]</span>
-      <h2 class="section-title">Projelerim</h2>
-      <p class="section-desc">WebXR'dan yapay zekaya, masaüstü uygulamalardan AR projelerine kadar geniş bir yelpazede çalışmalar.</p>
-    </div>
-
-    <div class="projects-tabs reveal">
-      <button class="tab-btn active" onclick="filterProjects('all', this)">Tümü</button>
-      <button class="tab-btn" onclick="filterProjects('webxr', this)">WebXR / AR</button>
-      <button class="tab-btn" onclick="filterProjects('ai', this)">Yapay Zeka</button>
-      <button class="tab-btn" onclick="filterProjects('app', this)">Masaüstü Uygulama</button>
-    </div>
-
-    <div class="projects-grid" id="projectsGrid">
-
-      <!-- WebXR: Siber Dedektif -->
-      <div class="project-card webxr" data-cat="webxr">
-        <div class="project-icon"><i class="fas fa-vr-cardboard"></i></div>
-        <div class="project-title">Siber Dedektif</div>
-        <div class="project-desc">
-          WebXR tabanlı siber güvenlik temalı dedektiflik oyunu.
-          Tarayıcı üzerinde immersive VR deneyimi sunan interaktif bir macera.
-        </div>
-        <div class="project-tags">
-          <span class="project-tag blue">WebXR</span>
-          <span class="project-tag blue">PlayCanvas</span>
-          <span class="project-tag purple">JavaScript</span>
-          <span class="project-tag green">VR</span>
-        </div>
-        <div class="project-links">
-          <a href="https://github.com/aslan-droid/playcanvas-server" target="_blank" class="proj-link">
-            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- WebXR: MindAR Menü -->
-      <div class="project-card webxr" data-cat="webxr">
-        <div class="project-icon"><i class="fas fa-qrcode"></i></div>
-        <div class="project-title">MindAR — AR Restoran Menüsü</div>
-        <div class="project-desc">
-          MindAR.js ile marker tabanlı WebAR sipariş sistemi.
-          Kullanıcılar menü kartını kameraya tutarak 3D ürün görsellerini görüp sipariş verebiliyor.
-        </div>
-        <div class="project-tags">
-          <span class="project-tag blue">MindAR.js</span>
-          <span class="project-tag blue">WebAR</span>
-          <span class="project-tag green">A-Frame</span>
-          <span class="project-tag orange">AR Marker</span>
-        </div>
-        <div class="project-links">
-          <a href="https://github.com/aslan-droid/ar-menu" target="_blank" class="proj-link">
-            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
-          </a>
-          <a href="https://aslan-droid.github.io/ar-menu/" target="_blank" class="proj-link secondary">
-            <i class="fas fa-external-link-alt"></i> Canlı Demo
-          </a>
-        </div>
-      </div>
-
-      <!-- AI: İK Mülakat Simülatörü -->
-      <div class="project-card ai" data-cat="ai">
-        <div class="project-icon"><i class="fas fa-brain"></i></div>
-        <div class="project-title">İK Mülakat Simülatörü</div>
-        <div class="project-desc">
-          Yapay zeka destekli insan kaynakları mülakat simülatörü. Gerçek zamanlı geri bildirim
-          veren, adayların pratik yapmasına olanak tanıyan web uygulaması.
-        </div>
-        <div class="project-tags">
-          <span class="project-tag purple">AI</span>
-          <span class="project-tag purple">JavaScript</span>
-          <span class="project-tag blue">NLP</span>
-          <span class="project-tag green">HR Tech</span>
-        </div>
-        <div class="project-links">
-          <a href="https://github.com/aslan-droid/IK-Mulakat-Simulatoru" target="_blank" class="proj-link">
-            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
-          </a>
-          <a href="https://aslan-droid.github.io/IK-Mulakat-Simulatoru/" target="_blank" class="proj-link secondary">
-            <i class="fas fa-external-link-alt"></i> Canlı Demo
-          </a>
-        </div>
-      </div>
-
-      <!-- App: Otel Rezervasyon -->
-      <div class="project-card app" data-cat="app">
-        <div class="project-icon"><i class="fas fa-hotel"></i></div>
-        <div class="project-title">Otel Rezervasyon Sistemi</div>
-        <div class="project-desc">
-          C# tabanlı otel rezervasyon yönetim sistemi. Oda takibi, müşteri yönetimi
-          ve rezervasyon takvimi içeren masaüstü uygulaması.
-        </div>
-        <div class="project-tags">
-          <span class="project-tag purple">C#</span>
-          <span class="project-tag orange">Visual Studio</span>
-          <span class="project-tag blue">.NET</span>
-          <span class="project-tag red">SQL</span>
-        </div>
-        <div class="project-links">
-          <a href="https://github.com/aslan-droid/Otel-Rezervasyon-sistemi" target="_blank" class="proj-link">
-            <i class="fab fa-github"></i> GitHub <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ===== CONTACT ===== -->
-<section id="contact">
-  <div class="container">
-    <div class="section-header reveal">
-      <span class="section-label">// get_in_touch()</span>
-      <h2 class="section-title">İletişime Geç</h2>
-      <p class="section-desc">Proje fikirlerin, iş birliği tekliflerin veya sadece merhaba demek istersen — iletişime geçmekten çekinme!</p>
-    </div>
-
-    <div class="contact-grid">
-      <div class="contact-info reveal">
-        <h3>Konuşalım 👋</h3>
-        <p>
-          WebXR, yapay zeka veya web geliştirme konularında iş birliği yapmak,
-          proje fikri paylaşmak ya da sadece tanışmak için mesaj at.
-        </p>
-        <div class="social-links">
-          <a href="https://github.com/aslan-droid" target="_blank" class="social-link">
-            <div class="social-icon github"><i class="fab fa-github"></i></div>
+        <div class="projects-grid" id="projectsGrid">
+          
+          <!-- Project 1: Siber Dedektif -->
+          <div class="project-card" data-cat="webxr">
             <div>
-              <div class="social-name">GitHub</div>
-              <div class="social-handle">@aslan-droid</div>
+              <div class="proj-badge-row">
+                <span class="proj-category-badge badge-webxr">WebXR / VR</span>
+                <i class="fa-solid fa-user-secret proj-icon-large" style="color:#22d3ee;"></i>
+              </div>
+              <h3 class="proj-title">Siber Dedektif</h3>
+              <p class="proj-desc">
+                PlayCanvas motoru ile geliştirilmiş WebXR tabanlı siber güvenlik temalı dedektiflik oyunu. Tarayıcı üzerinde çalışan immersive VR mekanikleri ile olay yeri inceleme ve güvenlik analiz senaryoları sunar.
+              </p>
+              <div class="proj-tech-stack">
+                <span class="tech-pill">WebXR</span>
+                <span class="tech-pill">PlayCanvas</span>
+                <span class="tech-pill">JavaScript</span>
+                <span class="tech-pill">VR 3D</span>
+              </div>
             </div>
-            <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--text3)"></i>
-          </a>
-          <a href="https://www.linkedin.com/in/cuma-aslan/" target="_blank" class="social-link">
-            <div class="social-icon linkedin"><i class="fab fa-linkedin-in"></i></div>
+            <div class="proj-footer-links">
+              <a href="https://github.com/aslan-droid/playcanvas-server" target="_blank" class="proj-btn">
+                <i class="fa-brands fa-github"></i> GitHub Repo
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 2: MindAR Menü -->
+          <div class="project-card" data-cat="webxr">
             <div>
-              <div class="social-name">LinkedIn</div>
-              <div class="social-handle">linkedin.com/in/cuma-aslan</div>
+              <div class="proj-badge-row">
+                <span class="proj-category-badge badge-webxr">WebAR</span>
+                <i class="fa-solid fa-qrcode proj-icon-large" style="color:#38bdf8;"></i>
+              </div>
+              <h3 class="proj-title">MindAR — AR Restoran Menüsü</h3>
+              <p class="proj-desc">
+                MindAR.js ve A-Frame kullanılarak geliştirilmiş artırılmış gerçeklik (WebAR) restoran sipariş sistemi. Kullanıcılar kamera aracılığıyla menü marker'ını taratarak ürünlerin 3 boyutlu modellerini inceler ve sipariş verebilir.
+              </p>
+              <div class="proj-tech-stack">
+                <span class="tech-pill">MindAR.js</span>
+                <span class="tech-pill">A-Frame</span>
+                <span class="tech-pill">WebAR</span>
+                <span class="tech-pill">3D Marker</span>
+              </div>
             </div>
-            <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--text3)"></i>
-          </a>
-          <a href="mailto:cuma@cumaaslan.com.tr" class="social-link">
-            <div class="social-icon mail"><i class="fas fa-envelope"></i></div>
+            <div class="proj-footer-links">
+              <a href="https://github.com/aslan-droid/ar-menu" target="_blank" class="proj-btn">
+                <i class="fa-brands fa-github"></i> GitHub
+              </a>
+              <a href="https://aslan-droid.github.io/ar-menu/" target="_blank" class="proj-btn proj-btn-live">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Canlı Demo
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 3: İK Mülakat Simülatörü -->
+          <div class="project-card" data-cat="ai">
             <div>
-              <div class="social-name">E-posta</div>
-              <div class="social-handle">cuma@cumaaslan.com.tr</div>
+              <div class="proj-badge-row">
+                <span class="proj-category-badge badge-ai">Yapay Zeka</span>
+                <i class="fa-solid fa-brain proj-icon-large" style="color:#c084fc;"></i>
+              </div>
+              <h3 class="proj-title">İK Mülakat Simülatörü</h3>
+              <p class="proj-desc">
+                Yapay zeka ve NLP (Doğal Dil İşleme) destekli insan kaynakları mülakat hazırlık aracı. Adayların mülakat sorularına verdiği cevapları gerçek zamanlı analiz ederek puanlama, yapıcı geri bildirim ve gelişim önerileri sunar.
+              </p>
+              <div class="proj-tech-stack">
+                <span class="tech-pill">AI / NLP</span>
+                <span class="tech-pill">JavaScript</span>
+                <span class="tech-pill">Simülasyon</span>
+                <span class="tech-pill">HR Tech</span>
+              </div>
             </div>
-            <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--text3)"></i>
-          </a>
+            <div class="proj-footer-links">
+              <a href="https://github.com/aslan-droid/IK-Mulakat-Simulatoru" target="_blank" class="proj-btn">
+                <i class="fa-brands fa-github"></i> GitHub
+              </a>
+              <a href="https://aslan-droid.github.io/IK-Mulakat-Simulatoru/" target="_blank" class="proj-btn proj-btn-live">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Canlı Demo
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 4: Otel Rezervasyon Sistemi -->
+          <div class="project-card" data-cat="desktop">
+            <div>
+              <div class="proj-badge-row">
+                <span class="proj-category-badge badge-desktop">Masaüstü / Sistem</span>
+                <i class="fa-solid fa-hotel proj-icon-large" style="color:#fbbf24;"></i>
+              </div>
+              <h3 class="proj-title">Otel Rezervasyon Sistemi</h3>
+              <p class="proj-desc">
+                C# ve .NET mimarisi kullanılarak Visual Studio ortamında geliştirilmiş kapsamlı otel otomasyonu. Oda durumu takibi, dinamik rezervasyon planlaması, müşteri veri tabanı ve SQL tabanlı fatura/raporlama modüllerini barındırır.
+              </p>
+              <div class="proj-tech-stack">
+                <span class="tech-pill">C#</span>
+                <span class="tech-pill">.NET</span>
+                <span class="tech-pill">SQL</span>
+                <span class="tech-pill">WinForms</span>
+              </div>
+            </div>
+            <div class="proj-footer-links">
+              <a href="https://github.com/aslan-droid/Otel-Rezervasyon-sistemi" target="_blank" class="proj-btn">
+                <i class="fa-brands fa-github"></i> GitHub Repo
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
+    </section>
 
-      <div class="contact-card reveal">
-        <h4>Mesaj Gönder</h4>
-        <div class="form-group">
-          <label>Ad Soyad</label>
-          <input type="text" placeholder="Adınız Soyadınız" />
+    <!-- ABOUT SECTION -->
+    <section id="about">
+      <div class="container">
+        <div class="about-layout">
+          
+          <div class="about-text">
+            <div class="section-badge"><i class="fa-solid fa-user"></i> Profil</div>
+            <h3>Yönetim Bilişim Sistemleri Öğrencisi &amp; Geliştirici</h3>
+            <p>
+              İskenderun Teknik Üniversitesi (İSTE) Yönetim Bilişim Sistemleri bölümünde eğitimime devam ediyorum. Akademik odağım; işletme ve süreç yönetiminin analitik zekasını, ileri yazılım teknolojileri ve interaktif arayüzlerle harmanlamaktır.
+            </p>
+            <p>
+              Özellikle <strong>WebXR (Sanal/Artırılmış Gerçeklik)</strong> ve <strong>Yapay Zeka</strong> alanlarında deneysel ve pratik uygulamalar üretiyorum. MindAR ile marker tabanlı AR menülerden PlayCanvas ile sanal dedektiflik oyunlarına kadar geniş bir spektrumda kod yazıyorum.
+            </p>
+
+            <div class="about-stats-grid">
+              <div class="stat-box">
+                <div class="stat-number">14+</div>
+                <div class="stat-label">GitHub Repo</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-number">3+</div>
+                <div class="stat-label">WebXR / AR</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-number">İSTE</div>
+                <div class="stat-label">YBS Eğitimi</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Info Card -->
+          <div class="profile-card">
+            <div class="profile-header">
+              <div class="profile-avatar">
+                <i class="fa-solid fa-user-astronaut"></i>
+              </div>
+              <div>
+                <div class="profile-name">Cuma ASLAN</div>
+                <div class="profile-sub">YBS Öğrencisi &amp; Developer</div>
+              </div>
+            </div>
+
+            <ul class="info-list">
+              <li class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-building-columns"></i></div>
+                <div>
+                  <div class="info-label">Üniversite</div>
+                  <div class="info-val">İskenderun Teknik Üniversitesi (İSTE)</div>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div>
+                  <div class="info-label">Bölüm</div>
+                  <div class="info-val">Yönetim Bilişim Sistemleri (YBS)</div>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+                <div>
+                  <div class="info-label">E-Posta</div>
+                  <div class="info-val">aslancuma45@gmail.com</div>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div>
+                  <div class="info-label">Konum</div>
+                  <div class="info-val">İskenderun / Hatay, Türkiye</div>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-bullseye"></i></div>
+                <div>
+                  <div class="info-label">Odak Alanları</div>
+                  <div class="info-val">WebXR · Yapay Zeka · MIS · C#</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
         </div>
-        <div class="form-group">
-          <label>E-posta</label>
-          <input type="email" placeholder="ornek@email.com" />
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge"><i class="fa-solid fa-paper-plane"></i> İletişim</div>
+          <h2 class="section-title">Birlikte Üretelim</h2>
+          <p class="section-desc">
+            Projeler, iş birlikleri veya fikir alışverişi için dilediğiniz zaman iletişime geçebilirsiniz.
+          </p>
         </div>
-        <div class="form-group">
-          <label>Mesaj</label>
-          <textarea placeholder="Merhaba Cuma, seninle..."></textarea>
+
+        <div class="contact-grid">
+          
+          <div class="contact-intro">
+            <h3>Bir Mesaj Uzağındayım 🚀</h3>
+            <p>
+              WebXR, yapay zeka entegrasyonu veya kurumsal bilişim sistemleri projeleriniz için benimle e-posta veya sosyal ağlar üzerinden doğrudan temas kurabilirsiniz.
+            </p>
+
+            <div class="contact-channels">
+              <!-- Gmail Card -->
+              <a href="mailto:aslancuma45@gmail.com" class="channel-card">
+                <div class="channel-left">
+                  <div class="channel-icon c-gmail">
+                    <i class="fa-regular fa-envelope"></i>
+                  </div>
+                  <div>
+                    <div class="channel-title">E-Posta Gönder</div>
+                    <div class="channel-handle">aslancuma45@gmail.com</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-arrow-right" style="color:var(--text-dim);"></i>
+              </a>
+
+              <!-- LinkedIn Card -->
+              <a href="https://www.linkedin.com/in/cuma-aslan/" target="_blank" class="channel-card">
+                <div class="channel-left">
+                  <div class="channel-icon c-linkedin">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                  </div>
+                  <div>
+                    <div class="channel-title">LinkedIn Profili</div>
+                    <div class="channel-handle">linkedin.com/in/cuma-aslan</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--text-dim);"></i>
+              </a>
+
+              <!-- GitHub Card -->
+              <a href="https://github.com/aslan-droid" target="_blank" class="channel-card">
+                <div class="channel-left">
+                  <div class="channel-icon c-github">
+                    <i class="fa-brands fa-github"></i>
+                  </div>
+                  <div>
+                    <div class="channel-title">GitHub Portfolyosu</div>
+                    <div class="channel-handle">@aslan-droid</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--text-dim);"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="contact-form-card">
+            <form id="contactForm" onsubmit="handleFormSubmit(event)">
+              <div class="form-group">
+                <label class="form-label">Adınız Soyadınız</label>
+                <input type="text" class="form-input" placeholder="Adınız Soyadınız" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-Posta Adresiniz</label>
+                <input type="email" class="form-input" placeholder="ornek@domain.com" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Konu / Proje</label>
+                <input type="text" class="form-input" placeholder="WebXR / Yapay Zeka / İş Birliği" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Mesajınız</label>
+                <textarea class="form-textarea" placeholder="Mesajınızı buraya yazabilirsiniz..." required></textarea>
+              </div>
+              <button type="submit" class="btn-submit" id="submitBtn">
+                <i class="fa-solid fa-paper-plane"></i> Mesajı Gönder
+              </button>
+            </form>
+          </div>
+
         </div>
-        <button class="btn-primary" style="width:100%;justify-content:center" onclick="sendMsg(event)">
-          <i class="fas fa-paper-plane"></i> Gönder
-        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container footer-content">
+      <div style="color:#cbd5e1; font-weight:600;">
+        Cuma ASLAN · İskenderun Teknik Üniversitesi (İSTE) YBS
+      </div>
+      <div>
+        © 2026 Tüm Hakları Saklıdır. Modern Three.js Bilişim Mimarisi ile Geliştirildi.
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/aslan-droid" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+        <a href="https://www.linkedin.com/in/cuma-aslan/" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+        <a href="mailto:aslancuma45@gmail.com"><i class="fa-regular fa-envelope"></i> E-Posta</a>
       </div>
     </div>
-  </div>
-</section>
+  </footer>
 
-<!-- ===== FOOTER ===== -->
-<footer>
-  <p>© 2026 <span>Cuma ASLAN</span> · İskenderun Teknik Üniversitesi YBS · Made with <span>❤</span></p>
-</footer>
+  <!-- ===== JAVASCRIPT: THREE.JS 3D YBS ENTERPRISE DATA ARCHITECTURE ===== -->
+  <script>
+    /* =====================================================================
+       THREE.JS: YBS VİZYONU 3D BİLİŞİM & VERİ MİMARİSİ ARKA PLANI
+       Kurumsal veri düğümleri (Database, ERP, Cloud, AI, MIS Core),
+       akan veri paketleri, siber ızgara ve interaktif fare perspektifi
+    ===================================================================== */
+    (function initThreeBackground() {
+      const canvas = document.getElementById('three-bg');
+      if (!canvas || typeof THREE === 'undefined') return;
 
-<!-- ===== SCRIPTS ===== -->
-<script>
-/* ================================================================
-   INTERACTIVE BACKGROUND — Morphing Aurora / Gradient Orbs
-   Mouse repels nearby orbs, smooth glow, glassmorphism feel
-================================================================ */
-(function () {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
 
-  let W, H, mouse = { x: -999, y: -999 };
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 0, 48);
 
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
+      // Light setup
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+      scene.add(ambientLight);
 
-  document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-  document.addEventListener('mouseleave', () => { mouse.x = -999; mouse.y = -999; });
+      const pointLight1 = new THREE.PointLight(0x3b82f6, 3, 100);
+      pointLight1.position.set(20, 25, 20);
+      scene.add(pointLight1);
 
-  /* ---- Orbs ---- */
-  const ORBS = [];
-  const ORB_CONFIGS = [
-    { r: 320, color: [120, 155, 255], speed: 0.18 },  // soft blue
-    { r: 280, color: [160, 100, 255], speed: 0.14 },  // soft purple
-    { r: 250, color: [90,  180, 255], speed: 0.22 },  // light blue
-    { r: 220, color: [200, 140, 255], speed: 0.17 },  // lavender
-    { r: 190, color: [100, 210, 230], speed: 0.20 },  // cyan
-    { r: 200, color: [140, 160, 255], speed: 0.13 },  // periwinkle
-  ];
+      const pointLight2 = new THREE.PointLight(0x8b5cf6, 2.5, 100);
+      pointLight2.position.set(-20, -25, 15);
+      scene.add(pointLight2);
 
-  ORB_CONFIGS.forEach((c, i) => {
-    ORBS.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random() - 0.5) * c.speed,
-      vy: (Math.random() - 0.5) * c.speed,
-      r: c.r,
-      color: c.color,
-      alpha: 0.13 + Math.random() * 0.09,
-      phase: Math.random() * Math.PI * 2,
-    });
-  });
+      // YBS Enterprise Nodes Definition
+      const nodeDefinitions = [
+        { label: 'MIS Core', x: 0, y: 0, z: 0, color: 0x3b82f6, size: 2.2, type: 'core' },
+        { label: 'ERP / Process', x: -18, y: 12, z: -8, color: 0x60a5fa, size: 1.5, type: 'cube' },
+        { label: 'Database Cluster', x: 20, y: 14, z: -10, color: 0x10b981, size: 1.7, type: 'cylinder' },
+        { label: 'AI & Decision Support', x: -22, y: -12, z: -6, color: 0xa855f7, size: 1.6, type: 'octa' },
+        { label: 'WebXR / Interface', x: 19, y: -14, z: -5, color: 0x06b6d4, size: 1.5, type: 'dodeca' },
+        { label: 'API Gateway', x: -8, y: 20, z: -12, color: 0x38bdf8, size: 1.3, type: 'cube' },
+        { label: 'Cloud Infrastructure', x: 10, y: -22, z: -15, color: 0x6366f1, size: 1.4, type: 'cube' },
+        { label: 'Business Analytics', x: -4, y: -18, z: -10, color: 0xf59e0b, size: 1.3, type: 'octa' },
+      ];
 
-  /* ---- Floating particles ---- */
-  const PARTICLES = [];
-  for (let i = 0; i < 55; i++) {
-    PARTICLES.push({
-      x: Math.random() * 2000 - 500,
-      y: Math.random() * 1200 - 100,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: -0.12 - Math.random() * 0.2,
-      r: 1.5 + Math.random() * 2.5,
-      alpha: 0.15 + Math.random() * 0.3,
-      color: Math.random() < 0.5 ? [100, 160, 255] : [160, 120, 255],
-    });
-  }
+      const nodesGroup = new THREE.Group();
+      scene.add(nodesGroup);
 
-  let t = 0;
+      const nodeMeshes = [];
 
-  function draw() {
-    requestAnimationFrame(draw);
-    t += 0.006;
+      nodeDefinitions.forEach(def => {
+        let geo;
+        if (def.type === 'core') {
+          geo = new THREE.IcosahedronGeometry(def.size, 1);
+        } else if (def.type === 'cube') {
+          geo = new THREE.BoxGeometry(def.size * 1.4, def.size * 1.4, def.size * 1.4);
+        } else if (def.type === 'cylinder') {
+          geo = new THREE.CylinderGeometry(def.size * 0.9, def.size * 0.9, def.size * 1.4, 16);
+        } else if (def.type === 'octa') {
+          geo = new THREE.OctahedronGeometry(def.size * 1.2, 0);
+        } else {
+          geo = new THREE.DodecahedronGeometry(def.size * 1.1, 0);
+        }
 
-    ctx.clearRect(0, 0, W, H);
+        // Outer wireframe
+        const wireMat = new THREE.MeshStandardMaterial({
+          color: def.color,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.65,
+          roughness: 0.2
+        });
+        const mesh = new THREE.Mesh(geo, wireMat);
+        mesh.position.set(def.x, def.y, def.z);
 
-    /* Base very subtle gradient */
-    const base = ctx.createLinearGradient(0, 0, W, H);
-    base.addColorStop(0, 'rgba(245,248,255,1)');
-    base.addColorStop(0.5, 'rgba(240,244,255,1)');
-    base.addColorStop(1, 'rgba(248,246,255,1)');
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, W, H);
+        // Inner glowing core
+        const coreGeo = new THREE.SphereGeometry(def.size * 0.5, 12, 12);
+        const coreMat = new THREE.MeshBasicMaterial({
+          color: def.color,
+          transparent: true,
+          opacity: 0.8
+        });
+        const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+        mesh.add(coreMesh);
 
-    /* Draw orbs */
-    ORBS.forEach(o => {
-      /* Slow oscillation */
-      o.x += o.vx + Math.sin(t + o.phase) * 0.3;
-      o.y += o.vy + Math.cos(t + o.phase * 1.3) * 0.3;
+        mesh.userData = {
+          origX: def.x,
+          origY: def.y,
+          origZ: def.z,
+          rotSpeedX: (Math.random() - 0.5) * 0.015,
+          rotSpeedY: (Math.random() - 0.5) * 0.018,
+          phase: Math.random() * Math.PI * 2
+        };
 
-      /* Bounce */
-      const pad = o.r * 0.5;
-      if (o.x < -pad) o.x = W + pad;
-      if (o.x > W + pad) o.x = -pad;
-      if (o.y < -pad) o.y = H + pad;
-      if (o.y > H + pad) o.y = -pad;
+        nodesGroup.add(mesh);
+        nodeMeshes.push(mesh);
+      });
 
-      /* Mouse repulsion */
-      const dx = o.x - mouse.x;
-      const dy = o.y - mouse.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const repelR = 200;
-      if (dist < repelR) {
-        const force = (repelR - dist) / repelR;
-        o.x += (dx / dist) * force * 2.2;
-        o.y += (dy / dist) * force * 2.2;
+      // Network Interconnections (Edges)
+      const connections = [
+        [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7],
+        [1, 5], [2, 1], [3, 7], [4, 6], [2, 4], [5, 2]
+      ];
+
+      const linesGroup = new THREE.Group();
+      scene.add(linesGroup);
+
+      function updateLines() {
+        while (linesGroup.children.length > 0) {
+          const obj = linesGroup.children[0];
+          linesGroup.remove(obj);
+          if (obj.geometry) obj.geometry.dispose();
+        }
+
+        connections.forEach(([i, j]) => {
+          const p1 = nodeMeshes[i].position;
+          const p2 = nodeMeshes[j].position;
+          const points = [p1, p2];
+          const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+          const lineMat = new THREE.LineBasicMaterial({
+            color: 0x3b82f6,
+            transparent: true,
+            opacity: 0.16
+          });
+          const line = new THREE.Line(lineGeo, lineMat);
+          linesGroup.add(line);
+        });
+      }
+      updateLines();
+
+      // Flowing Data Packets
+      const dataPackets = [];
+      const packetGeo = new THREE.SphereGeometry(0.32, 8, 8);
+
+      connections.forEach(([i, j], idx) => {
+        const mat = new THREE.MeshBasicMaterial({
+          color: idx % 2 === 0 ? 0x60a5fa : 0xa78bfa,
+          transparent: true,
+          opacity: 0.95
+        });
+        const pMesh = new THREE.Mesh(packetGeo, mat);
+        scene.add(pMesh);
+        dataPackets.push({
+          mesh: pMesh,
+          from: i,
+          to: j,
+          t: Math.random(),
+          speed: 0.004 + Math.random() * 0.005
+        });
+      });
+
+      // Cyber Matrix Particle Field
+      const particleCount = 260;
+      const partGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      for (let k = 0; k < particleCount * 3; k += 3) {
+        positions[k] = (Math.random() - 0.5) * 110;
+        positions[k + 1] = (Math.random() - 0.5) * 80;
+        positions[k + 2] = (Math.random() - 0.5) * 45;
+      }
+      partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const partMat = new THREE.PointsMaterial({
+        color: 0x64748b,
+        size: 0.45,
+        transparent: true,
+        opacity: 0.45
+      });
+      const particleField = new THREE.Points(partGeo, partMat);
+      scene.add(particleField);
+
+      // Mouse Parallax Interaction
+      let targetMouseX = 0;
+      let targetMouseY = 0;
+      let currentMouseX = 0;
+      let currentMouseY = 0;
+
+      window.addEventListener('mousemove', (e) => {
+        targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Animation Loop
+      let clock = new THREE.Clock();
+      let frame = 0;
+
+      function renderLoop() {
+        requestAnimationFrame(renderLoop);
+        const elapsedTime = clock.getElapsedTime();
+        frame++;
+
+        // Smooth mouse damping
+        currentMouseX += (targetMouseX - currentMouseX) * 0.05;
+        currentMouseY += (targetMouseY - currentMouseY) * 0.05;
+
+        // Animate enterprise nodes
+        nodeMeshes.forEach((mesh) => {
+          mesh.rotation.x += mesh.userData.rotSpeedX;
+          mesh.rotation.y += mesh.userData.rotSpeedY;
+
+          // Gentle floating wave
+          const wave = Math.sin(elapsedTime * 0.8 + mesh.userData.phase) * 0.7;
+          mesh.position.y = mesh.userData.origY + wave;
+        });
+
+        // Reconnect lines periodically
+        if (frame % 4 === 0) {
+          updateLines();
+        }
+
+        // Move data packets along network paths
+        dataPackets.forEach(dp => {
+          dp.t += dp.speed;
+          if (dp.t >= 1) dp.t = 0;
+          const posA = nodeMeshes[dp.from].position;
+          const posB = nodeMeshes[dp.to].position;
+          dp.mesh.position.lerpVectors(posA, posB, dp.t);
+        });
+
+        // Parallax camera rotation
+        camera.position.x = currentMouseX * 5;
+        camera.position.y = -currentMouseY * 4;
+        camera.lookAt(0, 0, 0);
+
+        // Slow particle rotation
+        particleField.rotation.y = elapsedTime * 0.02;
+
+        renderer.render(scene, camera);
+      }
+      renderLoop();
+    })();
+
+    /* =====================================================================
+       INTERACTIVE DEVELOPER TERMINAL LOGIC
+    ===================================================================== */
+    const terminalDatabase = {
+      whoami: () => `
+        <div class="t-line"><span class="t-highlight">Cuma ASLAN</span> — Yönetim Bilişim Sistemleri (YBS) Öğrencisi</div>
+        <div class="t-line">Üniversite: <span class="t-success">İskenderun Teknik Üniversitesi (İSTE)</span></div>
+        <div class="t-line">Rol: <span class="t-user">Full-Stack & WebXR Geliştirici</span></div>
+        <div class="t-line">E-Posta: <span class="t-warning">aslancuma45@gmail.com</span></div>
+        <div class="t-line">GitHub: <a href="https://github.com/aslan-droid" target="_blank" style="color:#60a5fa;">github.com/aslan-droid</a></div>
+      `,
+      ybs: () => `
+        <div class="t-line"><span class="t-highlight">[ YÖNETİM BİLİŞİM SİSTEMLERİ - VİZYON ]</span></div>
+        <div class="t-line">• İş süreçleri, veri tabanı mimarisi ve karar destek sistemleri entegrasyonu.</div>
+        <div class="t-line">• WebXR ile 3 boyutlu veri görselleştirme ve yeni nesil kullanıcı arayüzleri.</div>
+        <div class="t-line">• Yapay zeka ile süreç otomasyonu ve analitik modelleme.</div>
+        <div class="t-line">• Modern C# ve Web teknolojileri ile işletme altyapıları inşası.</div>
+      `,
+      projects: () => `
+        <div class="t-line"><span class="t-highlight">[ ÖNE ÇIKAN PROJELER ]</span></div>
+        <div class="t-line">1. <span class="t-success">Siber Dedektif</span>: PlayCanvas motoru ile WebXR siber güvenlik macera oyunu.</div>
+        <div class="t-line">2. <span class="t-success">MindAR Menü</span>: MindAR.js tabanlı artırılmış gerçeklik 3D restoran sipariş sistemi.</div>
+        <div class="t-line">3. <span class="t-success">İK Mülakat Simülatörü</span>: Doğal Dil İşleme (NLP) destekli mülakat hazırlık uygulaması.</div>
+        <div class="t-line">4. <span class="t-success">Otel Rezervasyon Sistemi</span>: C#, .NET ve SQL ile geliştirilmiş masaüstü yönetim otomasyonu.</div>
+      `,
+      skills: () => `
+        <div class="t-line"><span class="t-highlight">[ TEKNİK YETKİNLİKLER ]</span></div>
+        <div class="t-line">• <span class="t-user">WebXR / 3D:</span> MindAR.js, Three.js, A-Frame, PlayCanvas, Unity WebGL</div>
+        <div class="t-line">• <span class="t-user">Diller &amp; Frameworks:</span> JavaScript (ES6+), C#, Python, HTML5/CSS3</div>
+        <div class="t-line">• <span class="t-user">Yapay Zeka:</span> Doğal Dil İşleme (NLP), Veri Analitiği, Karar Destek</div>
+        <div class="t-line">• <span class="t-user">Veritabanı:</span> SQL, Veri Modelleme, Süreç Entegrasyonu</div>
+      `,
+      contact: () => `
+        <div class="t-line"><span class="t-highlight">[ İLETİŞİM KANALLARI ]</span></div>
+        <div class="t-line">• E-Posta : <span class="t-warning">aslancuma45@gmail.com</span></div>
+        <div class="t-line">• LinkedIn: <a href="https://www.linkedin.com/in/cuma-aslan/" target="_blank" style="color:#60a5fa;">linkedin.com/in/cuma-aslan</a></div>
+        <div class="t-line">• GitHub  : <a href="https://github.com/aslan-droid" target="_blank" style="color:#60a5fa;">github.com/aslan-droid</a></div>
+        <div class="t-line">• Konum   : İskenderun / Hatay, TR</div>
+      `,
+      help: () => `
+        <div class="t-line"><span class="t-highlight">Kullanılabilir Komutlar:</span></div>
+        <div class="t-line"><span class="t-success">whoami</span>    - Profil ve üniversite bilgisi</div>
+        <div class="t-line"><span class="t-success">ybs</span>       - YBS vizyonu ve bilişim yaklaşımı</div>
+        <div class="t-line"><span class="t-success">projects</span>  - Geliştirilen projeler</div>
+        <div class="t-line"><span class="t-success">skills</span>    - Teknolojiler ve yetkinlikler</div>
+        <div class="t-line"><span class="t-success">contact</span>   - İletişim adresleri</div>
+        <div class="t-line"><span class="t-success">clear</span>     - Terminal ekranını temizle</div>
+      `
+    };
+
+    const termOutput = document.getElementById('termOutput');
+    const termInput = document.getElementById('termInput');
+
+    function executeTerm(rawCmd) {
+      const cmd = rawCmd.trim().toLowerCase();
+      if (!cmd) return;
+
+      if (cmd === 'clear') {
+        termOutput.innerHTML = '';
+        return;
       }
 
-      /* Pulsing alpha */
-      const pAlpha = o.alpha + Math.sin(t * 1.4 + o.phase) * 0.03;
+      // Add user command line
+      const cmdLine = document.createElement('div');
+      cmdLine.className = 't-line';
+      cmdLine.innerHTML = `<span class="t-prompt">➜</span> <span class="t-user">cuma@isteu</span>:<span class="t-highlight">~</span>$ <span class="t-cmd">${rawCmd}</span>`;
+      termOutput.appendChild(cmdLine);
 
-      const grad = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r);
-      const [r, g, b] = o.color;
-      grad.addColorStop(0, `rgba(${r},${g},${b},${pAlpha})`);
-      grad.addColorStop(0.5, `rgba(${r},${g},${b},${pAlpha * 0.45})`);
-      grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      // Add result line
+      const resLine = document.createElement('div');
+      resLine.className = 't-output';
 
-      ctx.beginPath();
-      ctx.ellipse(o.x, o.y, o.r, o.r * (0.85 + Math.sin(t + o.phase) * 0.08), t * 0.08 + o.phase, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-    });
+      if (terminalDatabase[cmd]) {
+        resLine.innerHTML = terminalDatabase[cmd]();
+      } else {
+        resLine.innerHTML = `<div class="t-line" style="color:#f87171;">Komut bulunamadı: '${rawCmd}'. Kullanılabilir komutları görmek için <span class="t-warning">'help'</span> yazabilirsiniz.</div>`;
+      }
 
-    /* Mouse glow highlight */
-    if (mouse.x > 0) {
-      const mg = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 140);
-      mg.addColorStop(0, 'rgba(100,150,255,0.12)');
-      mg.addColorStop(0.5, 'rgba(120,120,255,0.05)');
-      mg.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.beginPath();
-      ctx.arc(mouse.x, mouse.y, 140, 0, Math.PI * 2);
-      ctx.fillStyle = mg;
-      ctx.fill();
+      termOutput.appendChild(resLine);
+      termOutput.scrollTop = termOutput.scrollHeight;
+      if (termInput) termInput.value = '';
     }
 
-    /* Particles */
-    PARTICLES.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
-      if (p.x < -20) p.x = W + 20;
-      if (p.x > W + 20) p.x = -20;
-
-      const [r, g, b] = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
-      ctx.fill();
-    });
-
-    /* Subtle grid overlay */
-    ctx.save();
-    ctx.strokeStyle = 'rgba(130,150,255,0.028)';
-    ctx.lineWidth = 1;
-    const gridSize = 60;
-    for (let x = 0; x < W; x += gridSize) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    if (termInput) {
+      termInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          executeTerm(termInput.value);
+        }
+      });
     }
-    for (let y = 0; y < H; y += gridSize) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+
+    /* =====================================================================
+       PROJECT FILTERING LOGIC
+    ===================================================================== */
+    function filterProjects(category, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.project-card');
+      cards.forEach(card => {
+        const cardCat = card.getAttribute('data-cat');
+        if (category === 'all' || cardCat === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
     }
-    ctx.restore();
-  }
 
-  draw();
-})();
+    /* =====================================================================
+       CONTACT FORM SUBMIT
+    ===================================================================== */
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gönderiliyor...';
 
-/* ================================================================
-   NAVIGATION
-================================================================ */
-function toggleNav() {
-  document.getElementById('navLinks').classList.toggle('open');
-}
-document.querySelectorAll('.nav-links a').forEach(a => {
-  a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
-});
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Mesajınız İletildi!';
+        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        e.target.reset();
 
-/* ================================================================
-   SCROLL REVEAL
-================================================================ */
-const revealObs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesajı Gönder';
+          btn.style.background = '';
+        }, 3500);
+      }, 1000);
+    }
 
-/* ================================================================
-   PROJECT FILTER
-================================================================ */
-function filterProjects(cat, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.project-card').forEach(card => {
-    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
-  });
-}
+    /* =====================================================================
+       MOBILE NAVIGATION TOGGLE
+    ===================================================================== */
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navMenu = document.getElementById('navMenu');
 
-/* ================================================================
-   CONTACT FORM
-================================================================ */
-function sendMsg(event) {
-  const btn = event.target.closest('button');
-  btn.innerHTML = '<i class="fas fa-check"></i> Gönderildi!';
-  btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-  setTimeout(() => {
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gönder';
-    btn.style.background = '';
-  }, 3000);
-}
-</script>
+    if (hamburgerBtn && navMenu) {
+      hamburgerBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+      });
+
+      document.querySelectorAll('.nav-link, .nav-cta').forEach(link => {
+        link.addEventListener('click', () => {
+          navMenu.classList.remove('active');
+        });
+      });
+    }
+  </script>
 </body>
 </html>
